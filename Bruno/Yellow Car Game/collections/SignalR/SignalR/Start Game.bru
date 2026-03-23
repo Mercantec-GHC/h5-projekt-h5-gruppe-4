@@ -1,0 +1,22 @@
+meta {
+  name: Start Game
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://{{baseUrl}}/game/start
+  body: none
+  auth: inherit
+}
+
+script:post-response {
+  const data = res.body;
+  
+  bru.setEnvVar("gameId", data.gameId)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

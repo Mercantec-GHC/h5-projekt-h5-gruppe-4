@@ -1,0 +1,26 @@
+meta {
+  name: Join Game
+  type: ws
+  seq: 2
+}
+
+ws {
+  url: wss://{{baseUrl}}/game/hub
+  body: ws
+  auth: inherit
+}
+
+body:ws {
+  name: message 1
+  content: '''
+    {"protocol":"json","version":1}
+    
+    {
+      "type": 1,
+      "target": "JoinGame",
+      "arguments": [
+        "{{gameId}}"
+      ]
+    }
+  '''
+}
