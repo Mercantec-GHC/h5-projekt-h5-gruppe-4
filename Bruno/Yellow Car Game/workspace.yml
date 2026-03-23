@@ -1,0 +1,12 @@
+opencollection: 1.0.0
+info:
+  name: "Yellow Car Game"
+  type: workspace
+
+collections:
+  - name: "SignalR"
+    path: "collections\\SignalR"
+
+specs:
+
+docs: ''
