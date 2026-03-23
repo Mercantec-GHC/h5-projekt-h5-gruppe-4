@@ -6,5 +6,8 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
   </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
   <Project Path="YellowCarGame.Api/YellowCarGame.Api.csproj" />
 </Solution>
