@@ -18,6 +18,7 @@ export default function ClientLayout({ children, navn }) {
     return (
         <Box sx={{ flex: 1 }}>
             <AppProvider>
+                <Navigation aktiv={activeSegment} navn={navn} />
                 {children}
             </AppProvider>
         </Box>
