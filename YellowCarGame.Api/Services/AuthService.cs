@@ -1,10 +1,10 @@
-﻿using YellowCarGame.Api.Helpers;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using YellowCarGame.Api.Helpers;
 using YellowCarGame.Api.Models.Database;
 using YellowCarGame.Api.Models.Dtos.Requests;
 using YellowCarGame.Api.Models.Dtos.Responses;
 using YellowCarGame.Api.Repositories;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace YellowCarGame.Api.Services
 {
@@ -27,6 +27,14 @@ namespace YellowCarGame.Api.Services
         /// <returns>A task that represents the asynchronous operation. The task result contains a LoginResponse with the new
         /// authentication token and related information.</returns>
         public Task<LoginResponse> RefreshAsync(RefreshTokenRequest dto);
+
+        /// <summary>
+        /// Registers a new user account using the specified registration details.
+        /// </summary>
+        /// <param name="dto">An object containing the user's registration information. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a RegisterResponse with the
+        /// outcome of the registration attempt.</returns>
+        public Task<RegisterResponse> RegisterAsync(RegisterRequest dto);
 
         /// <summary>
         /// Asynchronously retrieves information about the currently authenticated user.
@@ -65,12 +73,6 @@ namespace YellowCarGame.Api.Services
     {
         public async Task<LoginResponse> LoginAsync(LoginRequest dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Username))
-                throw new ArgumentNullException(nameof(dto));
-
-            if (string.IsNullOrWhiteSpace(dto.Password))
-                throw new ArgumentNullException(nameof(dto));
-
             var user = await userRepository.GetByUsernameAsync(dto.Username)
                 ?? throw new UnauthorizedAccessException("Invalid username or password.");
 
@@ -82,13 +84,21 @@ namespace YellowCarGame.Api.Services
 
         public async Task<LoginResponse> RefreshAsync(RefreshTokenRequest dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.RefreshToken))
-                throw new ArgumentNullException(nameof(dto));
-
             var user = await tokenRepository.ValidateTokenAsync(dto.RefreshToken) 
                 ?? throw new UnauthorizedAccessException("Invalid refresh token.");
             
             return await CreateLoginResponse(user);
+        }
+
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest dto)
+        {
+            if (await userRepository.GetByUsernameAsync(dto.Username) is not null)
+                throw new ArgumentException("Username already exists.");
+
+            var user = dto.ToUser();
+            await userRepository.CreateAsync(user);
+
+            return new RegisterResponse(user.Id);
         }
 
         public async Task<UserInfoResponse> GetUserInfoAsync()
