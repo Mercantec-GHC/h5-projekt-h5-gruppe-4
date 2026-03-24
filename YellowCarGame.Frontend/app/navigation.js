@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import AppNavBar from './nav/appBar';
+import AppNavBar from './navBar/navBar';
 import { Box } from '@mui/material';
 
 

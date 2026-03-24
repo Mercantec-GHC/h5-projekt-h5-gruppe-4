@@ -2,6 +2,8 @@
 import React, { useEffect } from 'react';
 import { AppProvider } from './AppContext';
 import { useSelectedLayoutSegment } from 'next/navigation';
+import { Box } from '@mui/material';
+import Navigation from './navigation';
 
 export default function ClientLayout({ children, navn }) {
     const activeSegment = useSelectedLayoutSegment();
@@ -16,11 +18,11 @@ export default function ClientLayout({ children, navn }) {
     }, [])
 
     return (
-        <Box sx={{ flex: 1 }}>
-            <AppProvider>
+        <AppProvider>
+            <Box sx={{ flex: 1, pt: '75px' }}>
                 <Navigation aktiv={activeSegment} navn={navn} />
                 {children}
-            </AppProvider>
-        </Box>
+            </Box>
+        </AppProvider>
     )
 }

@@ -4,13 +4,10 @@ import login from '@/api/login';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { Text, CustomizedButtons } from '$/Components';
 import { useAppContext } from "$/AppContext";
 import { useRouter } from 'next/navigation';
 import { Box } from '@/lib/mui';
 import { gemKrypteret } from '@/helpers/storage';
-import { checkServer, hent } from '@/api';
-import ServerFejl from './serverfejl';
 import { Button, TextField } from '@mui/material';
 
 export default function Login() {
@@ -88,12 +85,12 @@ export default function Login() {
                             control={control}
                             name="email"
                             render={({ field: { onChange } }) =>
-                                <Text
+                                <TextField
                                     width={300}
                                     label={brugernavn}
                                     onChange={onChange}
                                     type="email"
-                                    errors={errors.bruger}
+                                    errors={errors.email}
                                 />
                             }
                             rules={{ required: true }}
@@ -103,7 +100,7 @@ export default function Login() {
                             }}
                         />
                     </Box>
-                    {errors && errors.bruger?.message}
+                    {errors && errors.email?.message}
                     <Box sx={centrer}>
                         <Controller
                             id='password'

@@ -10,7 +10,7 @@ export const AppProvider = ({ children }) => {
         response,
         setResponse,
         isLoggedIn,
-        setIsLoggedIn,
+        setIsLoggedIn
     };
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

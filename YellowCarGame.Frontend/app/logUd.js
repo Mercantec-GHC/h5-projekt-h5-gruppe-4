@@ -1,8 +1,8 @@
 "use client";
 import React from 'react';
-import { CustomizedButtons, ModalElement, Title } from '$/Components';
+import { ModalElement, Title } from '$/Components';
 import { useAppContext } from "$/AppContext";
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 //import { useLogout } from '@/api/logUd';
 
 export default function Logud({ modal, handleModal }) {
@@ -31,8 +31,8 @@ export default function Logud({ modal, handleModal }) {
             <ModalElement open={modal} titel={knap} handleOpen={handleModal}>
                 <Box>
                     <Title>{besked}</Title>
-                    <CustomizedButtons onClick={logud}>{knap}</CustomizedButtons>
-                    <CustomizedButtons onClick={handleModal}>{annuller}</CustomizedButtons>
+                    <Button onClick={logud}>{knap}</Button>
+                    <Button onClick={handleModal}>{annuller}</Button>
                 </Box>
             </ModalElement>
         </Box>
