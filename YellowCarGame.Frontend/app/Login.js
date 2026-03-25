@@ -17,18 +17,18 @@ export default function Login() {
 
     const labels = {
         knap: 'Log ind',
-        brugernavnfejl: 'hvad med din email???',
+        brugernavnfejl: 'hvad med dit brugernavn???',
         passwordFejl: 'Du skal bruge password for at logge ind',
         brugernavn: 'email'
     }
     const { knap, brugernavnfejl, passwordFejl, brugernavn } = labels;
     const schema = Yup.object().shape({
-        email: Yup.string().required(brugernavnfejl),
+        username: Yup.string().required(brugernavnfejl),
         password: Yup.string().required(passwordFejl)
     })
 
     const defaultValues = {
-        email: '',
+        username: '',
         password: ''
     }
 
@@ -53,7 +53,8 @@ export default function Login() {
             }
         }).catch(err => {
             setIsLoading(false)
-            if (err?.message.besked === 'bruger') {
+            console.log(err);
+            /*if (err?.message.besked === 'bruger') {
                 const bruger = err?.message.info
                 setStatus(`the user ${bruger} doesn't exist`)
             } else if (err?.message.besked === 'password') {
@@ -61,7 +62,7 @@ export default function Login() {
                 setStatus(password, 'Wrong password')
             } else {
                 setStatus(err)
-            }
+            }*/
         })
         return () => {
             cancel = true;
@@ -83,14 +84,14 @@ export default function Login() {
                     <Box sx={centrer}>
                         <Controller
                             control={control}
-                            name="email"
+                            name="username"
                             render={({ field: { onChange } }) =>
                                 <TextField
                                     width={300}
                                     label={brugernavn}
                                     onChange={onChange}
-                                    type="email"
-                                    errors={errors.email}
+                                    type="text"
+                                    errors={errors.username}
                                 />
                             }
                             rules={{ required: true }}
@@ -100,7 +101,7 @@ export default function Login() {
                             }}
                         />
                     </Box>
-                    {errors && errors.email?.message}
+                    {errors && errors.username?.message}
                     <Box sx={centrer}>
                         <Controller
                             id='password'

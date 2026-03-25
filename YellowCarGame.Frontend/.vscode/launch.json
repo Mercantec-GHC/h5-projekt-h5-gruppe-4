@@ -2,27 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "type": "node",
       "request": "launch",
-      "name": "Launch Next.js (npm run dev)",
-      "runtimeExecutable": "npm",
+      "name": "Launch Next.js",
+      "runtimeExecutable": "yarn",
       "runtimeArgs": ["run", "dev"],
       "cwd": "${workspaceFolder}",
-      "env": {
-        "NODE_OPTIONS": "--inspect=9229"
-      },
       "console": "integratedTerminal",
-      "port": 9229,
       "autoAttachChildProcesses": true
-    },
-    {
-      "type": "pwa-node",
-      "request": "attach",
-      "name": "Attach to Next.js (9229)",
-      "port": 9229,
-      "address": "localhost",
-      "restart": true,
-      "localRoot": "${workspaceFolder}"
     }
   ]
 }

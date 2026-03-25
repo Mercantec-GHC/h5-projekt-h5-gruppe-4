@@ -1,10 +1,10 @@
 import { api } from '@/config/config';
 
-const login = async (data) => {
+const refresh = async () => {
     let res;
 
-    const login = await api().post(`Auth`, data).then(response => {
-        res = response.data.message
+    const refresh = await api().post('Auth/Refresh').then(response => {
+        res = response.data
         return res
     }).catch((error) => {
         if (error.response) {
@@ -17,8 +17,7 @@ const login = async (data) => {
             res = error.message;
             throw res
         }
-    })
-    return login
+    });
+    return refresh;
 }
-
-export default login;
+export default refresh;

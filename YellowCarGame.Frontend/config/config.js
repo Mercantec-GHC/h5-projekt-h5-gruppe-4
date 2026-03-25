@@ -1,13 +1,14 @@
-//import { refresh } from '@/api';
-//import { laesDekrypteret } from '@/helpers/storage';
-//import axios from 'axios';
+'use server'
+import { refresh } from '@/api';
+import { laesDekrypteret } from '@/helpers/storage';
+import axios from 'axios';
 export const url = {
-    baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://10.133.51.112:8080/'}`,
-    path: 'api/'
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL || 'http://10.133.51.112:8080'}`,
+    path: '/'
 };
 
 
-/*const axiosInstance = axios.create({
+const axiosInstance = axios.create({
     baseURL: `${url.baseURL}${url.path}`,
     withCredentials: true,
     headers: {
