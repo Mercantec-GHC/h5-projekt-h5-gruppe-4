@@ -37,18 +37,25 @@ namespace YellowCarGame.Api.Repositories
         public Task<User?> GetByUsernameAsync(string username);
 
         /// <summary>
+        /// Creates a new user asynchronously.
+        /// </summary>
+        /// <param name="user">The user to create. Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous create operation.</returns>
+        public Task CreateAsync(User user);
+
+        /// <summary>
         /// Updates the specified user with new information asynchronously.
         /// </summary>
         /// <param name="user">The user entity containing updated information. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous update operation.</returns>
-        public Task Update(User user);
+        public Task UpdateAsync(User user);
 
         /// <summary>
         /// Deletes the specified user from the system asynchronously.
         /// </summary>
         /// <param name="user">The user to be deleted. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous delete operation.</returns>
-        public Task Delete(User user);
+        public Task DeleteAsync(User user);
     }
 
     public class UserRepository(AppDbContext dbContext) : IUserRepository
@@ -82,13 +89,19 @@ namespace YellowCarGame.Api.Repositories
             return await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
 
-        public async Task Update(User user)
+        public async Task CreateAsync(User user)
+        {
+            await dbContext.Users.AddAsync(user);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(User user)
         {
             dbContext.Users.Update(user);
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task Delete(User user)
+        public async Task DeleteAsync(User user)
         {
             if (!user.IsDisabled)
                 throw new InvalidOperationException("Cannot delete an active user. Please disable the user first.");

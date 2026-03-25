@@ -23,10 +23,6 @@ namespace YellowCarGame.Api.Controllers
             {
                 return Ok(await authService.LoginAsync(dto));
             }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
@@ -47,20 +43,29 @@ namespace YellowCarGame.Api.Controllers
             {
                 return Ok(await authService.RefreshAsync(dto));
             }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
             catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
             }
         }
 
+        /// <summary>
+        /// Registers a new user account using the specified registration details.
+        /// </summary>
+        /// <param name="dto">An object containing the registration information for the new user. Cannot be null.</param>
+        /// <returns>An ActionResult containing a RegisterResponse with the result of the registration operation. Returns a
+        /// BadRequest result if the registration details are invalid.</returns>
         [HttpPost("Register")]
         public async Task<ActionResult<RegisterResponse>> Register(RegisterRequest dto)
         {
-            return StatusCode(501);
+            try
+            {
+                return Ok(await authService.RegisterAsync(dto));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>
@@ -74,6 +79,28 @@ namespace YellowCarGame.Api.Controllers
         public async Task<ActionResult<UserInfoResponse>> UserInfo()
         {
             return Ok(await authService.GetUserInfoAsync());
+        }
+
+        /// <summary>
+        /// Changes the current user's password using the specified password change request.
+        /// </summary>
+        /// <remarks>This action requires the user to be authenticated. If the current password is
+        /// incorrect or the user is not authorized, the request will fail with an unauthorized response.</remarks>
+        /// <param name="dto">An object containing the current and new password information required to perform the password change.</param>
+        /// <returns>An HTTP 204 No Content response if the password was changed successfully; otherwise, an appropriate error
+        /// response.</returns>
+        [HttpPost("ChangePassword"), Authorize]
+        public async Task<ActionResult> ChangePassword(PasswordChangeRequest dto)
+        {
+            try
+            {
+                await authService.ChangePasswordAsync(dto);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
         /// <summary>
