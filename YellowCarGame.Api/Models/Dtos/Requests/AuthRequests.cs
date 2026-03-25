@@ -12,7 +12,6 @@ namespace YellowCarGame.Api.Models.Dtos.Requests
         public string Username { get; init; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [ConfigRegex("PasswordRegex", ErrorMessage = "Password does not meet requirements.")]
         public string Password { get; init; }
     }
 
@@ -37,7 +36,7 @@ namespace YellowCarGame.Api.Models.Dtos.Requests
         public string Username { get; init; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [ConfigRegex("PasswordRegex", ErrorMessage = "Password does not meet requirements.")]
+        [ConfigRegex("PasswordRegex", ErrorMessage = "Password does not meet the requirements.")]
         public string Password { get; init; }
 
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
@@ -59,5 +58,18 @@ namespace YellowCarGame.Api.Models.Dtos.Requests
                 HashedPassword = BCrypt.Net.BCrypt.HashPassword(Password)
             };
         }
+    }
+
+    public class PasswordChangeRequest
+    {
+        [Required(ErrorMessage = "Current password is required.")]
+        public string CurrentPassword { get; init; }
+
+        [Required(ErrorMessage = "New password is required.")]
+        [ConfigRegex("PasswordRegex", ErrorMessage = "The new password does not meet the requirements.")]
+        public string NewPassword { get; init; }
+
+        [Compare("NewPassword", ErrorMessage = "New passwords do not match.")]
+        public string ConfirmNewPassword { get; init; }
     }
 }

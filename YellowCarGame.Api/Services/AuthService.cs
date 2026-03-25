@@ -43,6 +43,14 @@ namespace YellowCarGame.Api.Services
         public Task<UserInfoResponse> GetUserInfoAsync();
 
         /// <summary>
+        /// Asynchronously changes the user's password using the specified password change request.
+        /// </summary>
+        /// <param name="dto">An object containing the current and new password information required to perform the password change.
+        /// Cannot be null.</param>
+        /// <returns>A task that represents the asynchronous password change operation.</returns>
+        public Task ChangePasswordAsync(PasswordChangeRequest dto);
+
+        /// <summary>
         /// Asynchronously uploads a user avatar image from the specified file.
         /// </summary>
         /// <remarks>The file should be a supported image format, such as JPEG or PNG. The method does not
@@ -103,10 +111,22 @@ namespace YellowCarGame.Api.Services
 
         public async Task<UserInfoResponse> GetUserInfoAsync()
         {
-            var user = await userContext.GetCurrentUserAsync() 
+            var user = await userContext.GetCurrentUserAsync()
                 ?? throw new UnauthorizedAccessException("User not authenticated.");
 
             return new UserInfoResponse(user);
+        }
+
+        public async Task ChangePasswordAsync(PasswordChangeRequest dto)
+        {
+            var user = await userContext.GetCurrentUserAsync() 
+                ?? throw new UnauthorizedAccessException("User not authenticated.");
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.HashedPassword))
+                throw new UnauthorizedAccessException("Current password is incorrect.");
+
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await userRepository.UpdateAsync(user);
         }
 
         public async Task UploadAvatarAsync(IFormFile file)

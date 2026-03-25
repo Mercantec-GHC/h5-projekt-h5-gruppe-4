@@ -82,6 +82,28 @@ namespace YellowCarGame.Api.Controllers
         }
 
         /// <summary>
+        /// Changes the current user's password using the specified password change request.
+        /// </summary>
+        /// <remarks>This action requires the user to be authenticated. If the current password is
+        /// incorrect or the user is not authorized, the request will fail with an unauthorized response.</remarks>
+        /// <param name="dto">An object containing the current and new password information required to perform the password change.</param>
+        /// <returns>An HTTP 204 No Content response if the password was changed successfully; otherwise, an appropriate error
+        /// response.</returns>
+        [HttpPost("ChangePassword"), Authorize]
+        public async Task<ActionResult> ChangePassword(PasswordChangeRequest dto)
+        {
+            try
+            {
+                await authService.ChangePasswordAsync(dto);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Uploads a new avatar image for the authenticated user.
         /// </summary>
         /// <param name="file">The image file to upload as the user's avatar. Must be a valid, non-null file in a supported image format.</param>
