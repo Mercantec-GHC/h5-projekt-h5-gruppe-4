@@ -1,5 +1,6 @@
 import "./globals.css";
 import ClientLayout from "./layout.client";
+import ThemeRegistry from "./ThemeRegistry";
 
 export const metadata = {
   title: "Gul bil app",
@@ -18,9 +19,11 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body>
-        <ClientLayout navn={metadata.title}>
-          {children}
-        </ClientLayout>
+        <ThemeRegistry>
+          <ClientLayout navn={metadata.title}>
+            {children}
+          </ClientLayout>
+        </ThemeRegistry>
       </body>
     </html>
   );

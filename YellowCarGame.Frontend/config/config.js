@@ -1,4 +1,3 @@
-'use server'
 import { refresh } from '@/api';
 import { laesDekrypteret } from '@/helpers/storage';
 import axios from 'axios';
@@ -9,8 +8,7 @@ export const url = {
 
 
 const axiosInstance = axios.create({
-    baseURL: `${url.baseURL}${url.path}`,
-    withCredentials: true,
+    baseURL: `/`,
     headers: {
         'Content-Type': 'application/json'
     }
@@ -25,12 +23,16 @@ axiosInstance.interceptors.response.use(
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('refresh')
+            !originalRequest.url.includes('Refresh') &&
+            !originalRequest.url.includes('/api/login')
         ) {
             originalRequest._retry = true;
 
             try {
                 const user = laesDekrypteret("bruger");
+                if (!user?.id) {
+                    return Promise.reject(error);
+                }
                 if (!user?.id) throw new Error("Ingen bruger-id");
 
                 await refresh({ id: user.id }); // forventer { id: 1 }

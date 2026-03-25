@@ -1,12 +1,9 @@
 'use client'
 import React, { useEffect } from 'react';
 import { AppProvider } from './AppContext';
-import { useSelectedLayoutSegment } from 'next/navigation';
-import { Box } from '@mui/material';
-import Navigation from './navigation';
+import RefreshLayout from './layout.refresh';
 
 export default function ClientLayout({ children, navn }) {
-    const activeSegment = useSelectedLayoutSegment();
     useEffect(() => {
         const handleContextMenu = (e) => {
             e.preventDefault()
@@ -19,10 +16,9 @@ export default function ClientLayout({ children, navn }) {
 
     return (
         <AppProvider>
-            <Box sx={{ flex: 1, pt: '75px' }}>
-                <Navigation aktiv={activeSegment} navn={navn} />
+            <RefreshLayout navn={navn}>
                 {children}
-            </Box>
+            </RefreshLayout>
         </AppProvider>
     )
 }

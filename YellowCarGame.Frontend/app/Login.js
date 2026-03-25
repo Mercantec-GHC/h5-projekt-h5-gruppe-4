@@ -9,10 +9,11 @@ import { useRouter } from 'next/navigation';
 import { Box } from '@/lib/mui';
 import { gemKrypteret } from '@/helpers/storage';
 import { Button, TextField } from '@mui/material';
+import hentData from '@/api/getAuth';
 
 export default function Login() {
     const router = useRouter();
-    const { setIsLoggedIn } = useAppContext();
+    const { setIsLoggedIn, setResponse } = useAppContext();
 
 
     const labels = {
@@ -46,23 +47,22 @@ export default function Login() {
         setIsLoading(true)
 
         login(data).then((res) => {
-            if (res.auth) {
-                setLanguage(res.sprog)
-                setIsLoggedIn(true)
-                gemKrypteret("user", res);
-            }
+            hentData(res.jwtToken).then(user => {
+                setMessage(user);
+                setResponse('');
+                setIsLoading(false);
+                setIsLoggedIn(true);
+                gemKrypteret("bruger", user);
+                router.push('/profile');
+            }).catch(err => {
+                setIsLoading(false);
+                console.log(err);
+                setStatus('Fejl ved hentning af brugerdata');
+            });
         }).catch(err => {
             setIsLoading(false)
             console.log(err);
-            /*if (err?.message.besked === 'bruger') {
-                const bruger = err?.message.info
-                setStatus(`the user ${bruger} doesn't exist`)
-            } else if (err?.message.besked === 'password') {
-                const password = err?.message.info
-                setStatus(password, 'Wrong password')
-            } else {
-                setStatus(err)
-            }*/
+            setStatus(err || 'Login fejlede');
         })
         return () => {
             cancel = true;
