@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="H5YellowCarGame.AppHost/H5YellowCarGame.AppHost.csproj" Id="7e4d5f20-8c42-4608-9a2e-ec5195f2e45e" />
+    <Project Path="H5YellowCarGame.ServiceDefaults/H5YellowCarGame.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="docker-compose.dcproj">
+    <Build />
+  </Project>
+  <Project Path="YellowCarGame.Api/YellowCarGame.Api.csproj" />
+</Solution>
