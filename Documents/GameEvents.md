@@ -5,32 +5,57 @@ title: Game Events
 ---
 
 classDiagram
+    direction LR
 
     class NewGame {}
 
     class PlayerJoined {
         + string UserId
-        + string UserName
+        + string PlayerName
     }
 
     class PlayerLeft {
         + string UserId
     }
 
-    class TimeChanged {
-        + int NewTime
+    class PlayerReady {
+        + string UserId 
+    }
+
+    class PlayerNotReady {
+        + string UserId 
+    }
+
+    class GameTimeChanged {
+        + int TotalSeconds
+    }
+
+    class GameStateChanged {
+        + string NewState
     }
 
     class Countdown {
-        + int Number
+        + int SecondsLeft
     }
 
     class GameStart {
-        + int GameTime
+        + int TimeLimitSeconds
+    }
+
+    class CarSpawned {
+        + string CarId
+        + int Lane
+        + double Speed
+        + string Color
+    }
+
+    class ScoreUpdated {
+        + string UserId
+        + int NewScore
     }
 
     class GameEnd {
-        + List<Score> Scores
+        + List<Score> FinalScores
     }
 
     class Score {
@@ -40,6 +65,6 @@ classDiagram
         + int WrongCars
     }
 
-Score --> GameEnd
+GameEnd --> Score
 
  ```

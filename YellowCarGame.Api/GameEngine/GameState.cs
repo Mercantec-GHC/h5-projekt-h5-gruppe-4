@@ -3,6 +3,7 @@
     public enum GameState
     {
         Lobby,
+        Countdown,
         Active,
         Scoreboard
     }
