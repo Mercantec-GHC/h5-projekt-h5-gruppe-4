@@ -1,8 +1,9 @@
+import { url } from "@/config/config";
 export async function GET(req) {
     const authHeader = req.headers.get("authorization");
-
+    const apiUrl = `${url.baseURL}/Auth`;
     try {
-        const res = await fetch("http://10.133.51.112:8080/Auth", {
+        const res = await fetch(apiUrl, {
             method: "GET",
             headers: {
                 "Authorization": authHeader || ""

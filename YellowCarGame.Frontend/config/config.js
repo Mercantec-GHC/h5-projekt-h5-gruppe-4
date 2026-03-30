@@ -19,7 +19,6 @@ axiosInstance.interceptors.response.use(
     async error => {
         const originalRequest = error.config;
 
-        // 🔒 Undgå uendelig refresh-loop
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&

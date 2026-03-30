@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import login from '@/api/login';
+import React, { useState } from 'react';
+import { login, hentData } from '@/api';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useAppContext } from "$/AppContext";
+import { ErrorMessage } from '@hookform/error-message';
 import { useRouter } from 'next/navigation';
 import { Box } from '@/lib/mui';
 import { gemKrypteret } from '@/helpers/storage';
 import { Button, TextField } from '@mui/material';
-import hentData from '@/api/getAuth';
 
 export default function Login() {
     const router = useRouter();
@@ -17,12 +17,13 @@ export default function Login() {
 
 
     const labels = {
-        knap: 'Log ind',
-        brugernavnfejl: 'hvad med dit brugernavn???',
-        passwordFejl: 'Du skal bruge password for at logge ind',
-        brugernavn: 'email'
+        knap: 'Login',
+        register: 'Register',
+        brugernavnfejl: 'What about your username???',
+        passwordFejl: 'You must enter a password to log in',
+        brugernavn: 'username'
     }
-    const { knap, brugernavnfejl, passwordFejl, brugernavn } = labels;
+    const { knap, brugernavnfejl, passwordFejl, brugernavn, register } = labels;
     const schema = Yup.object().shape({
         username: Yup.string().required(brugernavnfejl),
         password: Yup.string().required(passwordFejl)
@@ -37,7 +38,7 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState('');
 
-    const { handleSubmit, formState: { errors }, control, setError } = useForm({
+    const { handleSubmit, formState: { errors }, control } = useForm({
         defaultValues,
         resolver: yupResolver(schema)
     });
@@ -47,6 +48,7 @@ export default function Login() {
         setIsLoading(true)
 
         login(data).then((res) => {
+            gemKrypteret("jwt", res);
             hentData(res.jwtToken).then(user => {
                 setMessage(user);
                 setResponse('');
@@ -54,15 +56,13 @@ export default function Login() {
                 setIsLoggedIn(true);
                 gemKrypteret("bruger", user);
                 router.push('/profile');
-            }).catch(err => {
+            }).catch(() => {
                 setIsLoading(false);
-                console.log(err);
-                setStatus('Fejl ved hentning af brugerdata');
+                setStatus('Error occurred while fetching user data');
             });
         }).catch(err => {
             setIsLoading(false)
-            console.log(err);
-            setStatus(err || 'Login fejlede');
+            setStatus(err || 'Login failed');
         })
         return () => {
             cancel = true;
@@ -87,11 +87,12 @@ export default function Login() {
                             name="username"
                             render={({ field: { onChange } }) =>
                                 <TextField
-                                    width={300}
-                                    label={brugernavn}
+                                    label={username}
+                                    value={value}
                                     onChange={onChange}
                                     type="text"
-                                    errors={errors.username}
+                                    error={!!errors.username}
+                                    helperText={<ErrorMessage errors={errors} name="username" />}
                                 />
                             }
                             rules={{ required: true }}
@@ -101,7 +102,7 @@ export default function Login() {
                             }}
                         />
                     </Box>
-                    {errors && errors.username?.message}
+                    <ErrorMessage errors={errors} name="username" />
                     <Box sx={centrer}>
                         <Controller
                             id='password'
@@ -113,7 +114,8 @@ export default function Login() {
                                     label='Password'
                                     onChange={onChange}
                                     type="password"
-                                    errors={errors?.password}
+                                    error={!!errors.password}
+                                    helperText={<ErrorMessage errors={errors} name="password" />}
                                 />
                             }
                             rules={{
@@ -124,9 +126,12 @@ export default function Login() {
                             }}
                         />
                     </Box>
-                    {errors && errors.password?.message}
+                    <ErrorMessage errors={errors} name="password" />
                     <div>
                         <Button type="submit" disabled={isLoading}>{knap}</Button>
+                        <Button type="button" onClick={() => router.push('/register')}>
+                            {register}
+                        </Button>
                     </div>
                     <Box sx={{ color: 'red' }}>{status}</Box>
                 </Box>

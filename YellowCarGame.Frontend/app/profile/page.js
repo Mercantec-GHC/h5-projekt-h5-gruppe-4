@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useAppContext } from '$/AppContext';
 import { laesDekrypteret } from '@/helpers/storage';
 import Loader from '../Components/loader';
+import withAuth from '../withAuth';
 
 const Skrivebord = () => {
     const { setResponse, response } = useAppContext();
@@ -49,4 +50,4 @@ const Skrivebord = () => {
 
     )
 }
-export default Skrivebord;
+export default withAuth(Skrivebord);
