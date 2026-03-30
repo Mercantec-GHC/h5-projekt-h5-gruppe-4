@@ -1,5 +1,8 @@
-
 ```mermaid
+
+---
+title: Game Sequence
+---
 
 sequenceDiagram
     participant Client as Klient (Browser/App)
@@ -34,4 +37,6 @@ sequenceDiagram
 
     Game-->>API: Game end
     API-->>Client: Broadcasts game end to all clients
+
+```
 
