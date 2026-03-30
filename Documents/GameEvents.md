@@ -7,54 +7,75 @@ title: Game Events
 classDiagram
     direction LR
 
-    class NewGame {}
+    class StartGame-Client {}
 
-    class PlayerJoined {
+    class NewGame-Server {}
+
+    class OnHostChanged-Server {
+        + string UserId
+    }
+
+    class GetPlayers-Client {}
+
+    class AllPlayers-Server {
+        + List<PlayerJoined>
+    }
+
+    class PlayerJoined-Server {
         + string UserId
         + string PlayerName
     }
 
-    class PlayerLeft {
+    class PlayerLeft-Server {
         + string UserId
     }
 
-    class PlayerReady {
+    class SetReadyStatus-Client {
+        + string UserId
+        + bool Ready
+    }
+
+    class PlayerReady-Server {
         + string UserId 
     }
 
-    class PlayerNotReady {
+    class PlayerNotReady-Server {
         + string UserId 
     }
 
-    class GameTimeChanged {
+    class ChangeGameTime-Client {
         + int TotalSeconds
     }
 
-    class GameStateChanged {
+    class GameTimeChanged-Server {
+        + int TotalSeconds
+    }
+
+    class GameStateChanged-Server {
         + string NewState
     }
 
-    class Countdown {
+    class Countdown-Server {
         + int SecondsLeft
     }
 
-    class GameStart {
+    class GameStart-Server {
         + int TimeLimitSeconds
     }
 
-    class CarSpawned {
+    class CarSpawned-Server {
         + string CarId
         + int Lane
         + double Speed
         + string Color
     }
 
-    class ScoreUpdated {
+    class ScoreUpdated-Server {
         + string UserId
         + int NewScore
     }
 
-    class GameEnd {
+    class GameEnd-Server {
         + List<Score> FinalScores
     }
 
@@ -65,6 +86,14 @@ classDiagram
         + int WrongCars
     }
 
-GameEnd --> Score
+    class GameState {
+        + Lobby
+        + CountDown
+        + Running
+        + Scoreboard
+    }
+
+GameEnd-Server --> Score
+GameStateChanged-Server --> GameState
 
  ```
