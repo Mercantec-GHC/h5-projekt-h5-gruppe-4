@@ -1,4 +1,6 @@
-﻿namespace YellowCarGame.Api.GameEngine
+﻿using YellowCarGame.Api.Models.Database;
+
+namespace YellowCarGame.Api.GameEngine
 {
     public class Game(string id, string code)
     {
@@ -6,7 +8,8 @@
         public string Code { get; } = code;
         public bool IsRunning { get; private set; } = true;
 
-        public List<string> Players { get; } = new();
+        public List<User> AllowedPlayers { get; } = new();
+        public List<Player> Players { get; } = new();
         public List<Car> Cars { get; } = new();
 
         public GameState State { get; private set; } = GameState.Lobby;
@@ -34,24 +37,24 @@
         {
             var events = new List<GameEvent>();
 
-            if (_random.NextDouble() < 0.1)
-            {
-                var car = new Car
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Lane = _random.Next(0, 3),
-                    Speed = 2.0 + _random.NextDouble() * 3.0,
-                    Color = $"#{_random.Next(0x1000000):X6}"
-                };
+            //if (_random.NextDouble() < 0.1)
+            //{
+            //    var car = new Car
+            //    {
+            //        Id = Guid.NewGuid().ToString(),
+            //        Lane = _random.Next(0, 3),
+            //        Speed = 2.0 + _random.NextDouble() * 3.0,
+            //        Color = $"#{_random.Next(0x1000000):X6}"
+            //    };
 
-                Cars.Add(car);
+            //    Cars.Add(car);
 
-                events.Add(new GameEvent
-                {
-                    EventName = "CarSpawned",
-                    Payload = car
-                });
-            }
+            //    events.Add(new GameEvent
+            //    {
+            //        EventName = "CarSpawned",
+            //        Payload = car
+            //    });
+            //}
 
             return events;
         }
@@ -64,6 +67,15 @@
         public double Speed { get; set; }
         public string Color { get; set; }
         public bool IsClaimed { get; set; }
+    }
+
+    public class Player
+    {
+        public string UserId { get; set; }
+        public string UserName { get; set; }
+        public string ConnectionId { get; set; }
+        public int Score { get; set; }
+        public bool IsReady { get; set; } = false;
     }
 
     public class GameEvent
