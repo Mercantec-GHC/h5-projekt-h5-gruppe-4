@@ -43,11 +43,19 @@ const Skrivebord = () => {
 
     console.log("Brugerdata:", bruger);
     return (
-        <Box>
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100vh',
+                width: '100vw',
+            }}
+        >
             <Title size={50} color='blue' >Profile</Title>
             <Title size={30} color='purple' >Velkommen, {bruger.username}!</Title>
         </Box>
 
     )
 }
-export default withAuth(Skrivebord);
+export default Skrivebord;

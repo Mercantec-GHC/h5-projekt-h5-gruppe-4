@@ -19,7 +19,6 @@ const AppNavBar = ({ navn, aktiv, sider, StyledLink, makering }) => {
 
     return (
         <AppBar sx={{
-            color: '#fff',
             background: 'inherit'
         }}>
             <Container maxWidth="xl">

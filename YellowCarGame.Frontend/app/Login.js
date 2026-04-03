@@ -21,9 +21,9 @@ export default function Login() {
         register: 'Register',
         brugernavnfejl: 'What about your username???',
         passwordFejl: 'You must enter a password to log in',
-        brugernavn: 'username'
+        username: 'username'
     }
-    const { knap, brugernavnfejl, passwordFejl, brugernavn, register } = labels;
+    const { knap, brugernavnfejl, passwordFejl, username, register } = labels;
     const schema = Yup.object().shape({
         username: Yup.string().required(brugernavnfejl),
         password: Yup.string().required(passwordFejl)
@@ -85,8 +85,9 @@ export default function Login() {
                         <Controller
                             control={control}
                             name="username"
-                            render={({ field: { onChange } }) =>
+                            render={({ field: { onChange, value } }) =>
                                 <TextField
+                                    sx={{ m: 1, width: '50ch' }}
                                     label={username}
                                     value={value}
                                     onChange={onChange}
@@ -110,7 +111,7 @@ export default function Login() {
                             name="password"
                             render={({ field: { onChange } }) =>
                                 <TextField
-                                    width={300}
+                                    sx={{ m: 1, width: '50ch' }}
                                     label='Password'
                                     onChange={onChange}
                                     type="password"
