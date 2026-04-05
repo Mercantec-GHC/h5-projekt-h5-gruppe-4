@@ -13,13 +13,15 @@ const Spil = () => {
 
 
     const centrer = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        mt: 2,
-        m: '0 auto',
-        width: '80%'
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: { xs: 2, md: 4 }, // mindre spacing på mobil
+        justifyContent: "center",
+        alignItems: "center", // 🔥 vigtigt!
+        maxWidth: 900,
+        mx: "auto",
+        mt: 4,
+        px: 2
     }
 
     return (

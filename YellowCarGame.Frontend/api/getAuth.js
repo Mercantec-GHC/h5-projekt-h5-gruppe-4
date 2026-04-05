@@ -2,7 +2,7 @@ import { api } from "@/config/config";
 
 const hentData = async (token) => {
     let res;
-    const hentData = await api().get("/api/getUser", {
+    const hentData = await api().get("/api/userdata/getUser", {
         headers: {
             Authorization: `Bearer ${token}`
         }

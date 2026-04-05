@@ -1,11 +1,15 @@
 import { url } from "@/config/config";
-export async function GET(req) {
-    const authHeader = req.headers.get("authorization");
-    const apiUrl = `${url.baseURL}/Game`;
+export async function POST(req) {
+    const body = await req.json();
+    const apiUrl = `${url.baseURL}/Auth/Refresh`;
+
     try {
         const res = await fetch(apiUrl, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" }
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
         });
 
         let data;
@@ -14,6 +18,7 @@ export async function GET(req) {
         } else {
             data = await res.text();
         }
+
 
         return new Response(
             typeof data === "string" ? data : JSON.stringify(data),
@@ -24,7 +29,7 @@ export async function GET(req) {
         );
 
     } catch (error) {
-        console.error("GET USER ERROR:", error);
+        console.error("REFRESH PROXY ERROR:", error); // 👈 vigtigt!
         return new Response(JSON.stringify({ message: "Server error" }), {
             status: 500
         });

@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Box, Button, TextField } from "@/lib/mui";
+import { Box, Button, TextField, Typography } from "@/lib/mui";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { ErrorMessage } from '@hookform/error-message';
@@ -42,13 +42,16 @@ const CreateGame = ({ setResponse }) => {
     }
 
     const centrer = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        mt: 2,
-        m: '0 auto',
-        width: '80%'
+        width: "100%",
+        maxWidth: 400,
+        p: 3,
+        borderRadius: 3,
+        boxShadow: 3,
+        backgroundColor: "background.paper",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        mx: "auto" // 🔥 centrerer kortet
     }
 
     return (
@@ -59,7 +62,7 @@ const CreateGame = ({ setResponse }) => {
                     name="TimeLimitSeconds"
                     render={({ field: { onChange } }) =>
                         <TextField
-                            sx={{ m: 1, width: '50ch' }}
+                            fullWidth
                             label={TimeLimitSeconds}
                             onChange={onChange}
                             type="number"
@@ -80,7 +83,7 @@ const CreateGame = ({ setResponse }) => {
                     name="MaxPlayers"
                     render={({ field: { onChange, value } }) =>
                         <TextField
-                            sx={{ m: 1, width: '50ch' }}
+                            fullWidth
                             label={MaxPlayers}
                             onChange={onChange}
                             type="number"
@@ -96,10 +99,17 @@ const CreateGame = ({ setResponse }) => {
                     }}
                 />
                 <ErrorMessage errors={errors} name="MaxPlayers" />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                >
+                    <Typography variant="h5" fontWeight="bold">
+                        {start}
+                    </Typography>
+                </Button>
             </Box>
-            <div>
-                <Button type="submit">{start}</Button>
-            </div>
         </form>
     );
 };

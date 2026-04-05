@@ -3,7 +3,7 @@ import { api } from '@/config/config';
 const login = async (data) => {
     let res;
 
-    const login = await api().post("/api/login", data).then(response => {
+    const login = await api().post("/api/userdata/login", data).then(response => {
         res = response.data;
         return res
     }).catch((error) => {

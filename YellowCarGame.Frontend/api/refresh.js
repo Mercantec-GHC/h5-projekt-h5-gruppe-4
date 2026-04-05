@@ -1,9 +1,9 @@
 import { api } from '@/config/config';
 
-const refresh = async () => {
+const refresh = async (data) => {
     let res;
 
-    const refresh = await api().post('Auth/Refresh').then(response => {
+    const refresh = await api().post('api/auth/refresh', data).then(response => {
         res = response.data
         return res
     }).catch((error) => {

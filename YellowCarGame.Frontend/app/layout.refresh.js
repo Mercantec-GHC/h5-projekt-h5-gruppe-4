@@ -10,31 +10,33 @@ import { refresh } from '@/api'
 import { useAppContext } from './AppContext'
 
 export default function RefreshLayout({ children, navn }) {
-    const { setIsLoggedIn } = useAppContext()
+    const { setIsLoggedIn, isLoggedIn } = useAppContext()
     const [isLoading, setIsLoading] = useState(true)
     const activeSegment = useSelectedLayoutSegment()
 
     useEffect(() => {
         let mounted = true
-
-        refresh()
-            .then(res => {
-                if (!mounted) return
-                setIsLoggedIn(!res?.error)
-            })
-            .catch(() => {
-                if (!mounted) return
-                setIsLoggedIn(false)
-            })
-            .finally(() => {
-                if (!mounted) return
-                setIsLoading(false)
-            })
-
+        if (isLoggedIn) {
+            refresh()
+                .then(res => {
+                    if (!mounted) return
+                    setIsLoggedIn(!res?.error)
+                })
+                .catch(() => {
+                    if (!mounted) return
+                    setIsLoggedIn(false)
+                })
+                .finally(() => {
+                    if (!mounted) return
+                    setIsLoading(false)
+                })
+        } else {
+            setIsLoading(false)
+        }
         return () => {
             mounted = false
         }
-    }, [setIsLoggedIn])
+    }, [setIsLoggedIn, isLoggedIn])
 
     if (isLoading) {
         return (

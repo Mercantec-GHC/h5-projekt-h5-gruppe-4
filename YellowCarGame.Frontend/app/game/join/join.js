@@ -1,6 +1,6 @@
 "use client"
 import React from "react";
-import { Box, Button, TextField } from "@/lib/mui";
+import { Box, Button, TextField, Typography } from "@/lib/mui";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { ErrorMessage } from '@hookform/error-message';
@@ -13,19 +13,19 @@ const JoinGame = () => {
 
     const labels = {
         joinErr: 'You must enter a game code to join a game',
-        Gamekode: 'Game Code',
+        Gamecode: 'Game Code',
         wrongkode: 'Invalid game code. Please enter a code between 1111 and 9999.',
         join: 'Join Game',
     }
 
-    const { joinErr, Gamekode, wrongkode, join } = labels;
+    const { joinErr, Gamecode, wrongkode, join } = labels;
 
     const defaultValues = {
-        Gamekode: 0,
+        Gamecode: 0,
     }
 
     const schema = Yup.object().shape({
-        Gamekode: Yup.number().max(9999, wrongkode).min(1111, wrongkode).typeError(wrongkode).required(joinErr)
+        Gamecode: Yup.number().max(9999, wrongkode).min(1111, wrongkode).typeError(wrongkode).required(joinErr)
     })
 
 
@@ -35,17 +35,20 @@ const JoinGame = () => {
     });
 
     const onSubmit = async (data) => {
-        router.push('/game/lobby/' + data.Gamekode);
+        router.push('/game/lobby/' + data.Gamecode);
     }
 
     const centrer = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        mt: 2,
-        m: '0 auto',
-        width: '80%'
+        width: "100%",
+        maxWidth: 400,
+        p: 3,
+        borderRadius: 3,
+        boxShadow: 3,
+        backgroundColor: "background.paper",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        mx: "auto" // 🔥 centrerer kortet
     }
 
     return (
@@ -53,15 +56,15 @@ const JoinGame = () => {
             <Box sx={centrer}>
                 <Controller
                     control={control}
-                    name="Gamekode"
+                    name="Gamecode"
                     render={({ field: { onChange } }) =>
                         <TextField
-                            sx={{ m: 1, width: '50ch' }}
-                            label={Gamekode}
+                            fullWidth
+                            label={Gamecode}
                             onChange={onChange}
                             type="number"
-                            error={!!errors.Gamekode}
-                            helperText={<ErrorMessage errors={errors} name="Gamekode" />}
+                            error={!!errors.Gamecode}
+                            helperText={<ErrorMessage errors={errors} name="Gamecode" />}
                         />
                     }
                     rules={{
@@ -71,11 +74,18 @@ const JoinGame = () => {
                         shrink: true,
                     }}
                 />
-                <ErrorMessage errors={errors} name="Gamekode" />
+                <ErrorMessage errors={errors} name="Gamecode" />
+                <Button
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                >
+                    <Typography variant="h5" fontWeight="bold">
+                        {join}
+                    </Typography>
+                </Button>
             </Box>
-            <div>
-                <Button type="submit">{join}</Button>
-            </div>
         </form>
     );
 };

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button, TextField } from "@/lib/mui";
 import { useRouter } from "next/navigation";
+import connection from "$/game/signalr";
 
 const OpretBruger = ({ params }) => {
     const router = useRouter();
@@ -9,7 +10,19 @@ const OpretBruger = ({ params }) => {
     const [players, setPlayers] = useState([]);
 
     useEffect(() => {
+        connection.start()
+            .then(() => {
+                console.log("Connected!");
 
+                connection.on("ReceiveMessage", (message) => {
+                    console.log("Message fra server:", message);
+                });
+            })
+            .catch(err => console.error(err));
+
+        return () => {
+            connection.stop();
+        };
     }, []);
 
     /*useEffect(() => {
