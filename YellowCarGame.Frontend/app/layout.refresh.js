@@ -1,42 +1,42 @@
-'use client'
+'use client';
+import { useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import { useSelectedLayoutSegment } from 'next/navigation';
 
-import { useEffect, useState } from 'react'
-import { Box } from '@mui/material'
-import { useSelectedLayoutSegment } from 'next/navigation'
-
-import Navigation from './navigation'
-import Loader from './Components/loader'
-import { refresh } from '@/api'
-import { useAppContext } from './AppContext'
+import Navigation from './navigation';
+import Loader from './Components/loader';
+import { refresh } from '@/api/refresh';
+import { useAppContext } from './AppContext';
 
 export default function RefreshLayout({ children, navn }) {
-    const { setIsLoggedIn, isLoggedIn } = useAppContext()
-    const [isLoading, setIsLoading] = useState(true)
-    const activeSegment = useSelectedLayoutSegment()
+    const { setIsLoggedIn, isLoggedIn } = useAppContext();
+    const [isLoading, setIsLoading] = useState(true);
+    const activeSegment = useSelectedLayoutSegment();
 
     useEffect(() => {
-        let mounted = true
+        let mounted = true;
+
+        const checkLogin = async () => {
+            try {
+                await refresh();
+                if (mounted) setIsLoggedIn(true);
+            } catch (err) {
+                if (mounted) setIsLoggedIn(false);
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        };
+
         if (isLoggedIn) {
-            refresh()
-                .then(res => {
-                    if (!mounted) return
-                    setIsLoggedIn(!res?.error)
-                })
-                .catch(() => {
-                    if (!mounted) return
-                    setIsLoggedIn(false)
-                })
-                .finally(() => {
-                    if (!mounted) return
-                    setIsLoading(false)
-                })
+            checkLogin();
         } else {
-            setIsLoading(false)
+            setIsLoading(false);
         }
+
         return () => {
-            mounted = false
-        }
-    }, [setIsLoggedIn, isLoggedIn])
+            mounted = false;
+        };
+    }, [isLoggedIn, setIsLoggedIn]);
 
     if (isLoading) {
         return (
@@ -49,14 +49,9 @@ export default function RefreshLayout({ children, navn }) {
                     width: '100vw',
                 }}
             >
-                <Loader
-                    sx={{ maxWidth: '50%' }}
-                    text="Indlæser..."
-                    size="large"
-                    type="threeDot"
-                />
+                <Loader text="Indlaeser..." size="large" type="threeDot" />
             </Box>
-        )
+        );
     }
 
     return (
@@ -74,5 +69,5 @@ export default function RefreshLayout({ children, navn }) {
                 {children}
             </Box>
         </Box>
-    )
+    );
 }

@@ -15,30 +15,31 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.response.use(
-    res => res,
-    async error => {
+    (res) => res,
+    async (error) => {
         const originalRequest = error.config;
 
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('Refresh') &&
-            !originalRequest.url.includes('/api/login')
+            !originalRequest.url.includes('/auth/refresh') &&
+            !originalRequest.url.includes('/login')
         ) {
             originalRequest._retry = true;
 
             try {
-                const user = laesDekrypteret("bruger");
-                if (!user?.id) {
-                    return Promise.reject(error);
+                await refresh();
+
+                // 🔥 HENT NYT TOKEN
+                const user = laesDekrypteret('jwt');
+
+                if (user?.accessToken) {
+                    originalRequest.headers.Authorization = `Bearer ${user.accessToken}`;
                 }
-                if (!user?.id) throw new Error("Ingen bruger-id");
 
-                await refresh({ id: user.id }); // forventer { id: 1 }
-
-                return axiosInstance(originalRequest); // 👈 brug samme instans
+                return axiosInstance(originalRequest);
             } catch (err) {
-                console.error("Refresh fejlede, redirecter:", err);
+                console.error('Refresh fejlede:', err);
                 return Promise.reject(err);
             }
         }

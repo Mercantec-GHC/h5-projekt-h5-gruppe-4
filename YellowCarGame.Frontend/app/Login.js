@@ -49,7 +49,7 @@ export default function Login() {
 
         login(data).then((res) => {
             gemKrypteret("jwt", res);
-            hentData(res.jwtToken).then(user => {
+            hentData().then(user => {
                 setMessage(user);
                 setResponse('');
                 setIsLoading(false);

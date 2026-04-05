@@ -1,15 +1,9 @@
 import { api } from "@/config/config";
 
-const joinAuth = async (token, sti, gameId) => {
+const joinAuth = async (gameId) => {
     try {
         const response = await api().get(
-            `/api/game/join/${gameId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
+            `/api/game/join/${gameId}`);
 
         console.log("POST RESPONSE:", response.data);
         return response.data;
