@@ -40,7 +40,6 @@ const CreateGame = ({ setResponse }) => {
     const onSubmit = async (data) => {
         createGame(data).then((d) => {
             setResponse(d);
-            console.log("Game created with code:", d);
             router.push('/game/lobby/' + d.code);
         }).catch(err => {
             setResponse(err)

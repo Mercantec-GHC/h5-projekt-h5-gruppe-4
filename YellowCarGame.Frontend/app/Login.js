@@ -48,7 +48,6 @@ export default function Login() {
         setIsLoading(true)
 
         login(data).then((res) => {
-            console.log(res)
             gemKrypteret("jwt", res);
             hentData().then(user => {
                 setMessage(user);

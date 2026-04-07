@@ -3,7 +3,6 @@ export async function POST(req) {
     const body = await req.json();
     const authHeader = req.headers.get("authorization");
     const apiUrl = `${url.baseURL}/Auth/Refresh`;
-    console.log("REFRESH REQUEST BODY:", authHeader);
     try {
         const res = await fetch(apiUrl, {
             method: "POST",

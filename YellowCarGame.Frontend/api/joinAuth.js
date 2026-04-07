@@ -5,7 +5,6 @@ const joinAuth = async (gameId) => {
         const response = await api().get(
             `/api/game/join/${gameId}`);
 
-        console.log("POST RESPONSE:", response.data);
         return response.data;
 
     } catch (error) {

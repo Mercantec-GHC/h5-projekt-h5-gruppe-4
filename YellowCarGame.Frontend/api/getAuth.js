@@ -4,7 +4,6 @@ const hentData = async () => {
     let res;
     const hentData = await api().get("/api/userdata/getUser").then(response => {
         res = response.data
-        console.log("GET USER RESPONSE:", res);
         return res
     }).catch(function (error) {
         if (error.response) {

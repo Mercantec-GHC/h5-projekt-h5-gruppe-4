@@ -34,7 +34,6 @@ axiosInstance.interceptors.response.use(
 
                 // 🔥 HENT NYT TOKEN
                 const user = laesDekrypteret('jwt');
-                console.log("REFRESHED USER:", user);
                 if (user?.jwtToken) {
                     originalRequest.headers.Authorization = `Bearer ${user.jwtToken}`;
                 }

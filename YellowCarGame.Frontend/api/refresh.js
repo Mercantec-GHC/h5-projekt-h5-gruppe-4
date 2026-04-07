@@ -3,7 +3,6 @@ import { laesDekrypteret, gemKrypteret } from '@/helpers/storage';
 
 const refresh = async () => {
     const user = laesDekrypteret('jwt');
-    console.log("USER:", user);
 
     if (!user?.refreshToken) {
         throw new Error("No refresh token");

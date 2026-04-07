@@ -49,7 +49,6 @@ const OpretBruger = ({ setResponse, setVisning, farve }) => {
     });
 
     const onSubmit = async (data) => {
-        console.log(data)
         data.username = data.username.trim();
         register(data).then((d) => {
             setVisning('')
