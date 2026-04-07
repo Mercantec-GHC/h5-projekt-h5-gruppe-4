@@ -9,10 +9,6 @@ class ArduinoClient {
     this.log = logFn;
   }
 
-  constructor() {
-    this(null);
-  }
-
   async connect() {
     this.port = await navigator.serial.requestPort();
     await this.port.open({ baudRate: 9600 });
