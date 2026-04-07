@@ -1,184 +1,229 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="da">
-<head>
-<meta charset="UTF-8">
-<title>Arduino Debugger</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f4;
-  margin: 0;
-  padding: 20px;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <title>Arduino Debugger</title>
+    <script src="arduinoClient.js"></script>
 
-#container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #0002;
-}
-
-h1 { margin-top: 0; }
-
-button {
-  padding: 8px 14px;
-  margin: 5px;
-  border: none;
-  background: #0078ff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover { background: #005fcc; }
-
-#log {
-  background: #111;
-  color: #0f0;
-  padding: 10px;
-  height: 300px;
-  overflow-y: auto;
-  font-family: monospace;
-  border-radius: 5px;
-}
-
-#jsonInput {
-  width: 100%;
-  height: 80px;
-  font-family: monospace;
-  padding: 10px;
-  border-radius: 5px;
-}
-</style>
-</head>
-<body>
-
-<div id="container">
-  <h1>Arduino JSON Debugger</h1>
-
-  <button id="connectBtn">🔌 Forbind</button>
-  <button id="pingBtn">🟢 Ping</button>
-  <button id="tempBtn">🌡️ Get Temp</button>
-
-  <h3>Send JSON request</h3>
-  <textarea id="jsonInput">{ "cmd": "getTemp", "data": {} }</textarea><br>
-  <button id="sendBtn">Send</button>
-
-  <h3>Log</h3>
-  <div id="log"></div>
-</div>
-
-<script>
-class ArduinoClient {
-  constructor(logFn) {
-    this.port = null;
-    this.writer = null;
-    this.readBuffer = "";
-    this.nextId = 1;
-    this.pending = {};
-    this.eventHandlers = {};
-    this.log = logFn;
-  }
-
-  async connect() {
-    this.port = await navigator.serial.requestPort();
-    await this.port.open({ baudRate: 9600 });
-
-    this.writer = this.port.writable.getWriter();
-
-    const decoder = new TextDecoderStream();
-    this.port.readable.pipeTo(decoder.writable);
-    const reader = decoder.readable.getReader();
-
-    this.log("CONNECTED");
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      this.readBuffer += value;
-      let lines = this.readBuffer.split("\n");
-      this.readBuffer = lines.pop();
-
-      for (let line of lines) {
-        if (line.trim().length === 0) continue;
-        this.handleMessage(JSON.parse(line));
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 20px;
       }
-    }
-  }
 
-  handleMessage(msg) {
-    this.log("RX: " + JSON.stringify(msg));
+      #container {
+        max-width: 900px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #0002;
+      }
 
-    if (msg.id && this.pending[msg.id]) {
-      this.pending[msg.id].resolve(msg.data);
-      delete this.pending[msg.id];
-      return;
-    }
+      h1 {
+        margin-top: 0;
+      }
 
-    if (msg.event && this.eventHandlers[msg.event]) {
-      this.eventHandlers[msg.event].forEach(cb => cb(msg.data));
-    }
-  }
+      button {
+        padding: 8px 14px;
+        margin: 5px;
+        border: none;
+        background: #0078ff;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #005fcc;
+      }
 
-  async request(cmd, data = {}) {
-    const id = this.nextId++;
-    const packet = { id, cmd, data };
+      #log {
+        background: #111;
+        color: #0f0;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: monospace;
+        border-radius: 5px;
+      }
 
-    const json = JSON.stringify(packet) + "\n";
-    this.log("TX: " + json.trim());
-    await this.writer.write(new TextEncoder().encode(json));
+      #jsonInput {
+        width: 100%;
+        height: 80px;
+        font-family: monospace;
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
 
-    return new Promise((resolve, reject) => {
-      this.pending[id] = { resolve, reject };
-      setTimeout(() => {
-        if (this.pending[id]) {
-          reject("Timeout");
-          delete this.pending[id];
+  <body>
+    <div id="container">
+      <h1>Arduino JSON Debugger</h1>
+
+      <button id="connectBtn">🔌 Forbind</button>
+      <button id="pingBtn">🟢 Ping</button>
+      <button id="tempBtn">🌡️ Get Temp</button>
+      <input type="color" id="ledColor_1" value="#000000" />
+
+      <h3>Upload billede til skærm</h3>
+      <input type="file" id="imageUpload" accept="image/*" />
+      <button id="uploadBtn">Upload til skærm</button>
+
+      <h3>Send JSON request</h3>
+      <textarea id="jsonInput">{ "cmd": "getTemp", "data": {} }</textarea><br />
+      <button id="sendBtn">Send</button>
+
+      <h3>Log</h3>
+      <pre id="log"></pre>
+    </div>
+
+    <script>
+      const logDiv = document.getElementById("log");
+      function log(msg) {
+        logDiv.textContent += msg + "\n";
+        logDiv.scrollTop = logDiv.scrollHeight;
+      }
+
+      const client = new ArduinoClient(log);
+
+      document.getElementById("connectBtn").onclick = () => client.connect();
+
+      document.getElementById("pingBtn").onclick = async () => {
+        const res = await client.request("ping");
+        log("PING RESPONSE: " + JSON.stringify(res));
+      };
+
+      document.getElementById("tempBtn").onclick = async () => {
+        const res = await client.request("getTemp");
+        log("TEMP RESPONSE: " + JSON.stringify(res));
+      };
+
+      document.getElementById("sendBtn").onclick = async () => {
+        const obj = JSON.parse(document.getElementById("jsonInput").value);
+        const res = await client.request(obj.cmd, obj.data);
+        log("RESPONSE: " + JSON.stringify(res));
+      };
+
+      document.getElementById("ledColor_1").onchange = async (e) => {
+        const color = e.target.value;
+        const r = parseInt(color.substr(1, 2), 16);
+        const g = parseInt(color.substr(3, 2), 16);
+        const b = parseInt(color.substr(5, 2), 16);
+
+        const res = await client.request("setLED", { i: 0, r, g, b });
+        await client.request("setLED", { i: 1, r, g, b });
+        await client.request("setLED", { i: 2, r, g, b });
+        await client.request("setLED", { i: 3, r, g, b });
+        await client.request("setLED", { i: 4, r, g, b });
+        log("LED RESPONSE: " + JSON.stringify(res));
+      };
+
+      // RGB → RGB565
+      function rgb565(r, g, b) {
+        return ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | (b >> 3);
+      }
+
+      async function uploadImageWithPixelChunks(file) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        await img.decode();
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 240;
+        canvas.height = 240;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, 240, 240);
+
+        const imgData = ctx.getImageData(0, 0, 240, 240);
+        const data = imgData.data;
+
+        const CHUNK_SIZE = 20; // 20 pixels per besked
+
+        let index = 0;
+
+        for (let y = 0; y < 240; y++) {
+          for (let x = 0; x < 240; x += CHUNK_SIZE) {
+            const pixels = [];
+
+            for (let i = 0; i < CHUNK_SIZE && x + i < 240; i++) {
+              const r = data[index++] >> 3;
+              const g = data[index++] >> 2;
+              const b = data[index++] >> 3;
+              index++; // alpha
+
+              const color = (r << 11) | (g << 5) | b;
+              pixels.push(color);
+            }
+
+            await client.request("setPixelChunk", {
+              x: x,
+              y: y,
+              pixels: pixels,
+            });
+          }
         }
-      }, 2000);
-    });
-  }
+      }
 
-  on(eventName, callback) {
-    if (!this.eventHandlers[eventName]) {
-      this.eventHandlers[eventName] = [];
-    }
-    this.eventHandlers[eventName].push(callback);
-  }
-}
+      async function uploadImageBase64Lines(file) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        await img.decode();
 
-const logDiv = document.getElementById("log");
-function log(msg) {
-  logDiv.textContent += msg + "\n";
-  logDiv.scrollTop = logDiv.scrollHeight;
-}
+        const canvas = document.createElement("canvas");
+        canvas.width = 240;
+        canvas.height = 240;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, 240, 240);
 
-const client = new ArduinoClient(log);
+        for (let y = 0; y < 240; y++) {
+          const imgData = ctx.getImageData(0, y, 240, 1);
+          const data = imgData.data;
 
-document.getElementById("connectBtn").onclick = () => client.connect();
+          // RGB565 buffer (240 pixels = 480 bytes)
+          const buf = new Uint16Array(240);
 
-document.getElementById("pingBtn").onclick = async () => {
-  const res = await client.request("ping");
-  log("PING RESPONSE: " + JSON.stringify(res));
-};
+          for (let i = 0; i < 240; i++) {
+            const r = data[i * 4 + 0] >> 3;
+            const g = data[i * 4 + 1] >> 2;
+            const b = data[i * 4 + 2] >> 3;
+            buf[i] = (r << 11) | (g << 5) | b;
+          }
 
-document.getElementById("tempBtn").onclick = async () => {
-  const res = await client.request("getTemp");
-  log("TEMP RESPONSE: " + JSON.stringify(res));
-};
+          // Convert to bytes
+          const bytes = new Uint8Array(buf.buffer);
 
-document.getElementById("sendBtn").onclick = async () => {
-  const obj = JSON.parse(document.getElementById("jsonInput").value);
-  const res = await client.request(obj.cmd, obj.data);
-  log("RESPONSE: " + JSON.stringify(res));
-};
+          // Encode to Base64
+          let binary = "";
+          for (let i = 0; i < bytes.length; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          const base64 = btoa(binary);
 
-// Event handlers
-client.on("buttonPressed", data => log("EVENT buttonPressed: " + JSON.stringify(data)));
-client.on("tempUpdate", data => log("EVENT tempUpdate: " + JSON.stringify(data)));
-</script>
+          // Send line to Arduino
+          await client.request("setPixelLine", {
+            y: y,
+            buffer: base64,
+          });
+        }
+      }
 
-</body>
+      document.getElementById("uploadBtn").onclick = async () => {
+        const file = document.getElementById("imageUpload").files[0];
+        if (!file) return log("⚠️ Vælg et billede først");
+
+        await uploadImageBase64Lines(file);
+      };
+
+      // Event handlers
+      client.on("buttonPressed", (data) =>
+        log("EVENT buttonPressed: " + JSON.stringify(data)),
+      );
+      client.on("tempUpdate", (data) =>
+        log("EVENT tempUpdate: " + JSON.stringify(data)),
+      );
+    </script>
+  </body>
 </html>
