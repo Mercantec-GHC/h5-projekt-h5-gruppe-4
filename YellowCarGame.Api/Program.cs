@@ -34,8 +34,8 @@ namespace YellowCarGame.Api
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", policy =>
-                {
+                options.AddPolicy("Development", policy =>
+                {                    
                     policy.SetIsOriginAllowed(origin =>
                     {
                         return true;
@@ -48,7 +48,7 @@ namespace YellowCarGame.Api
 
             var app = builder.Build();
 
-            app.UseCors("AllowAll");
+            app.UseCors("Development");
 
             app.MapDefaultEndpoints();
 
