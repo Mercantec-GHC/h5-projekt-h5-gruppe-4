@@ -48,6 +48,7 @@ export default function Login() {
         setIsLoading(true)
 
         login(data).then((res) => {
+            console.log(res)
             gemKrypteret("jwt", res);
             hentData().then(user => {
                 setMessage(user);
@@ -78,63 +79,92 @@ export default function Login() {
     }
 
     return (
-        <Box>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <Box sx={centrer}>
-                    <Box sx={centrer}>
-                        <Controller
-                            control={control}
-                            name="username"
-                            render={({ field: { onChange, value } }) =>
-                                <TextField
-                                    sx={{ m: 1, width: '50ch' }}
-                                    label={username}
-                                    value={value}
-                                    onChange={onChange}
-                                    type="text"
-                                    error={!!errors.username}
-                                    helperText={<ErrorMessage errors={errors} name="username" />}
-                                />
-                            }
-                            rules={{ required: true }}
-                            type="text"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
+        <Box
+            sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                px: 2
+            }}
+        >
+            <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: 400,
+                        mx: "auto",
+                        p: 4,
+                        borderRadius: 3,
+                        boxShadow: 3,
+                        backgroundColor: "background.paper",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2
+                    }}
+                >
+                    {/* Titel */}
+                    <Box sx={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }}>
+                        Login
                     </Box>
-                    <ErrorMessage errors={errors} name="username" />
-                    <Box sx={centrer}>
-                        <Controller
-                            id='password'
-                            control={control}
-                            name="password"
-                            render={({ field: { onChange } }) =>
-                                <TextField
-                                    sx={{ m: 1, width: '50ch' }}
-                                    label='Password'
-                                    onChange={onChange}
-                                    type="password"
-                                    error={!!errors.password}
-                                    helperText={<ErrorMessage errors={errors} name="password" />}
-                                />
-                            }
-                            rules={{
-                                required: true,
-                            }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-                    </Box>
-                    <ErrorMessage errors={errors} name="password" />
-                    <div>
-                        <Button type="submit" disabled={isLoading}>{knap}</Button>
-                        <Button type="button" onClick={() => router.push('/register')}>
-                            {register}
-                        </Button>
-                    </div>
-                    <Box sx={{ color: 'red' }}>{status}</Box>
+
+                    {/* Username */}
+                    <Controller
+                        control={control}
+                        name="username"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label={username}
+                                error={!!errors.username}
+                                helperText={<ErrorMessage errors={errors} name="username" />}
+                            />
+                        )}
+                    />
+
+                    {/* Password */}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                error={!!errors.password}
+                                helperText={<ErrorMessage errors={errors} name="password" />}
+                            />
+                        )}
+                    />
+
+                    {/* Knapper */}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        disabled={isLoading}
+                    >
+                        {knap}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => router.push('/register')}
+                    >
+                        {register}
+                    </Button>
+
+                    {/* Fejl */}
+                    {status && (
+                        <Box sx={{ color: "error.main", textAlign: "center" }}>
+                            {status}
+                        </Box>
+                    )}
                 </Box>
             </form>
         </Box>

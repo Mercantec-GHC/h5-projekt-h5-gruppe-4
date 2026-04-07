@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { ErrorMessage } from '@hookform/error-message';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from "next/navigation";
+import { createGame } from "@/api";
 
 const CreateGame = ({ setResponse }) => {
     const router = useRouter();
@@ -37,8 +38,13 @@ const CreateGame = ({ setResponse }) => {
     });
 
     const onSubmit = async (data) => {
-        setResponse(data);
-        router.push('/game/lobby/' + data.gameCode);
+        createGame(data).then((d) => {
+            setResponse(d);
+            console.log("Game created with code:", d);
+            router.push('/game/lobby/' + d.code);
+        }).catch(err => {
+            setResponse(err)
+        });
     }
 
     const centrer = {

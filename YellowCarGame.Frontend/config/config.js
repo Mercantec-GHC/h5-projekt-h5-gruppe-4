@@ -19,22 +19,24 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        const isAuthRoute =
+            originalRequest.url.includes('/api/userdata/login') ||
+            originalRequest.url.includes('/api/userdata/refresh');
+
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('/auth/refresh') &&
-            !originalRequest.url.includes('/login')
+            !isAuthRoute
         ) {
             originalRequest._retry = true;
-
             try {
                 await refresh();
 
                 // 🔥 HENT NYT TOKEN
                 const user = laesDekrypteret('jwt');
-
-                if (user?.accessToken) {
-                    originalRequest.headers.Authorization = `Bearer ${user.accessToken}`;
+                console.log("REFRESHED USER:", user);
+                if (user?.jwtToken) {
+                    originalRequest.headers.Authorization = `Bearer ${user.jwtToken}`;
                 }
 
                 return axiosInstance(originalRequest);

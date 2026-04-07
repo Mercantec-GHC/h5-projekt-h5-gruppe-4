@@ -25,8 +25,12 @@ const JoinGame = () => {
     }
 
     const schema = Yup.object().shape({
-        Gamecode: Yup.number().max(9999, wrongkode).min(1111, wrongkode).typeError(wrongkode).required(joinErr)
-    })
+        Gamecode: Yup.string()
+            .matches(/^[A-Z0-9]+$/, wrongkode)
+            .min(4, wrongkode)
+            .max(4, wrongkode)
+            .required(joinErr)
+    });
 
 
     const { handleSubmit, formState: { errors }, control } = useForm({
@@ -35,7 +39,11 @@ const JoinGame = () => {
     });
 
     const onSubmit = async (data) => {
-        router.push('/game/lobby/' + data.Gamecode);
+        joinAuth(data).then((d) => {
+            router.push('/game/lobby/' + data.Gamecode);
+        }).catch(err => {
+            setResponse(err)
+        });
     }
 
     const centrer = {
@@ -48,7 +56,7 @@ const JoinGame = () => {
         display: "flex",
         flexDirection: "column",
         gap: 2,
-        mx: "auto" // 🔥 centrerer kortet
+        mx: "auto"
     }
 
     return (

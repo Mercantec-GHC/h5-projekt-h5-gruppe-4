@@ -73,78 +73,96 @@ const OpretBruger = ({ setResponse, setVisning, farve }) => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={centrer}>
-                <Controller
-                    control={control}
-                    name="username"
-                    render={({ field: { onChange } }) =>
-                        <TextField
-                            width={300}
-                            label={username}
-                            onChange={onChange}
-                            type="text"
-                            error={!!errors.username}
-                            helperText={<ErrorMessage errors={errors} name="username" />}
-                        />
-                    }
-                    rules={{ required: true }}
-                    type="text"
-                    InputLabelProps={{
-                        shrink: true,
+        <Box
+            sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                px: 2
+            }}
+        >
+            <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: 400,
+                        mx: "auto",
+                        p: 4,
+                        borderRadius: 3,
+                        boxShadow: 3,
+                        backgroundColor: "background.paper",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2
                     }}
-                />
-                <ErrorMessage errors={errors} name="username" />
-                <Controller
-                    id='password'
-                    control={control}
-                    name="password"
-                    render={({ field: { onChange, value } }) =>
-                        <TextField
-                            width={300}
-                            label='Password'
-                            onChange={onChange}
-                            type="password"
-                            error={!!errors.password}
-                            helperText={<ErrorMessage errors={errors} name="password" />}
-                        />
-                    }
-                    rules={{
-                        required: true,
-                    }}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
-                <ErrorMessage errors={errors} name="password" />
-                <Controller
-                    id='confirmPassword'
-                    control={control}
-                    name="confirmPassword"
-                    render={({ field: { onChange, value } }) =>
-                        <TextField
-                            label={gentag}
-                            value={value}
-                            onChange={onChange}
-                            type="password"
-                            error={!!errors.confirmPassword}
-                            helperText={<ErrorMessage errors={errors} name="confirmPassword" />}
-                        />
-                    }
-                    rules={{
-                        required: true
-                    }}
+                >
+                    {/* Titel */}
+                    <Box sx={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }}>
+                        Create User
+                    </Box>
 
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
-                <ErrorMessage errors={errors} name="confirmPassword" />
-            </Box>
-            <div>
-                <Button bgcolor={farve} type="submit">gem</Button>
-            </div>
-        </form>
+                    {/* Username */}
+                    <Controller
+                        control={control}
+                        name="username"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label={username}
+                                autoFocus
+                                error={!!errors.username}
+                                helperText={<ErrorMessage errors={errors} name="username" />}
+                            />
+                        )}
+                    />
+
+                    {/* Password */}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                error={!!errors.password}
+                                helperText={<ErrorMessage errors={errors} name="password" />}
+                            />
+                        )}
+                    />
+
+                    {/* Confirm Password */}
+                    <Controller
+                        control={control}
+                        name="confirmPassword"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label={gentag}
+                                type="password"
+                                error={!!errors.confirmPassword}
+                                helperText={<ErrorMessage errors={errors} name="confirmPassword" />}
+                            />
+                        )}
+                    />
+
+                    {/* Knap */}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        sx={{ bgcolor: farve }}
+                    >
+                        gem
+                    </Button>
+                </Box>
+            </form>
+        </Box>
     );
 };
 

@@ -1,19 +1,26 @@
 import { api } from '@/config/config';
 import { laesDekrypteret, gemKrypteret } from '@/helpers/storage';
 
-export const refresh = async () => {
+const refresh = async () => {
     const user = laesDekrypteret('jwt');
+    console.log("USER:", user);
 
-    const res = await api().post('/api/auth/refresh', {
-        id: user.refreshToken,
+    if (!user?.refreshToken) {
+        throw new Error("No refresh token");
+    }
+    const res = await api().post('/api/userdata/refresh', {
+        refreshToken: user.refreshToken,
     });
 
-    if (res.data?.accessToken) {
+    if (res.data?.jwtToken) {
         gemKrypteret('jwt', {
             ...user,
-            accessToken: res.data.accessToken,
+            jwtToken: res.data.jwtToken,
+            expiresIn: res.data.expiresIn,
+            refreshToken: res.data.refreshToken ?? user.refreshToken
         });
     }
 
     return res.data;
 };
+export default refresh;

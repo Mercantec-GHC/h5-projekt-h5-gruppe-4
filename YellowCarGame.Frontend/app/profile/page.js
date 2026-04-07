@@ -6,9 +6,10 @@ import { useAppContext } from '$/AppContext';
 import { laesDekrypteret } from '@/helpers/storage';
 import Loader from '../Components/loader';
 import withAuth from '../withAuth';
+import { AvatarCropper } from "$/Components";
 import { useRouter } from 'next/navigation';
 
-const Skrivebord = () => {
+const Profile = () => {
     const router = useRouter();
     const { setResponse, response } = useAppContext();
     const [bruger, setBruger] = useState(null);
@@ -35,8 +36,8 @@ const Skrivebord = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '100vh',
-                width: '100vw',
+                width: '100%',
+                py: 10
             }}
         >
             <Loader
@@ -48,25 +49,69 @@ const Skrivebord = () => {
         </Box>;
     }
 
-
-    console.log("Brugerdata:", bruger);
     return (
         <Box
             sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
-                width: '100vw',
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                px: 2
             }}
         >
-            <Title size={50} color='blue' >{profile}</Title>
-            <Title size={30} color='purple' >{welcome.replace('{username}', bruger.username)}</Title>
-            <Button variant="contained" color="primary" onClick={() => router.push('/game')}>
-                {game}
-            </Button>
-        </Box>
+            <Box
+                sx={{
+                    width: "100%",
+                    maxWidth: 900,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    alignItems: "center"
+                }}
+            >
+                {/* Titel */}
+                <Title size={40} color="blue">
+                    {profile}
+                </Title>
 
-    )
+                {/* Velkomst */}
+                <Title size={24} color="purple">
+                    {welcome.replace('{username}', bruger?.username)}
+                </Title>
+
+                {/* Avatar + Cropper */}
+                <Box
+                    component="img"
+                    src={bruger?.avatar || "/default-avatar.png"}
+                    sx={{
+                        width: 100,
+                        height: 100,
+                        borderRadius: "50%",
+                        mb: 2
+                    }}
+                />
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: 500,
+                        p: 3,
+                        borderRadius: 3,
+                        boxShadow: 3,
+                        backgroundColor: "background.paper"
+                    }}
+                >
+                    <AvatarCropper />
+                </Box>
+
+                {/* Knap */}
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={() => router.push('/game')}
+                >
+                    {game}
+                </Button>
+            </Box>
+        </Box>
+    );
 }
-export default Skrivebord;
+export default Profile;

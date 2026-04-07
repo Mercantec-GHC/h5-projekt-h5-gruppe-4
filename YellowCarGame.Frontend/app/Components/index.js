@@ -1,4 +1,5 @@
 import Title from "./title";
 import ModalElement from "./modal";
+import AvatarCropper from "./cropper";
 
-export { Title, ModalElement };
+export { Title, ModalElement, AvatarCropper };

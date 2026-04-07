@@ -14,7 +14,6 @@ const Navigation = ({ navn, aktiv }) => {
     }
 
     const pages = [
-        { name: 'Nyt spil', link: '/game', activeSegment: 'game' },
         { name: 'About', link: '/about', activeSegment: 'about' },
     ];
 

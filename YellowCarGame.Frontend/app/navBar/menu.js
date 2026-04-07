@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Box, Typography, MenuItem } from '@mui/material';
+import { Box, Typography, MenuItem, Avatar, Tooltip } from '@mui/material';
 import { PiCarProfileFill } from "react-icons/pi";
 import { useAppContext } from '$/AppContext';
 
@@ -32,7 +32,11 @@ const MenuItems = ({ retning, aktiv, sider, StyledLink, handleCloseNavMenu, mark
                 aktivSide(aktiv === 'profil')
             }>
                 <StyledLink prefetch={false} className='link' href='/profil'>
-                    <PiCarProfileFill color='yellow' />
+                    <Tooltip title="Profile" placement="bottom">
+                        <Avatar sx={{ bgcolor: 'black', width: 32, height: 32 }}>
+                            <PiCarProfileFill color='yellow' />
+                        </Avatar>
+                    </Tooltip>
                 </StyledLink>
             </MenuItem>}
         </Box>
