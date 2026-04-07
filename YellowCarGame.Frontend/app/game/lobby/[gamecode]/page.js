@@ -3,37 +3,15 @@ import React, { useState, useEffect } from "react";
 import { Box, Button, TextField } from "@/lib/mui";
 import { useRouter } from "next/navigation";
 import connection from "$/game/signalr";
+import { useParams } from "next/navigation";
 
-const OpretBruger = ({ params }) => {
+const OpretBruger = () => {
+    const params = useParams();
+
+    const gamecode = params?.gamecode;
     const router = useRouter();
     const [ready, setReady] = useState(false);
     const [players, setPlayers] = useState([]);
-
-    useEffect(() => {
-        connection.start()
-            .then(() => {
-                console.log("Connected!");
-
-                connection.on("ReceiveMessage", (message) => {
-                    console.log("Message fra server:", message);
-                });
-            })
-            .catch(err => console.error(err));
-
-        return () => {
-            connection.stop();
-        };
-    }, []);
-
-    /*useEffect(() => {
-        const interval = setInterval(async () => {
-            const res = await fetch("/api/players");
-            const data = await res.json();
-            setPlayers(data);
-        }, 2000); // hver 2 sek
-
-        return () => clearInterval(interval);
-    }, []);//*/
 
 
     const handleClick = () => {
@@ -55,7 +33,7 @@ const OpretBruger = ({ params }) => {
         <Box sx={centrer}>
             <Box sx={{ mb: 4 }}>
                 <h1>Lobby</h1>
-                <p>Game Code: {params?.gameCode}</p>
+                <p>Game Code: {gamecode}</p>
             </Box>
             <Box sx={{ mb: 4 }}>
                 <h2>Spillere</h2>

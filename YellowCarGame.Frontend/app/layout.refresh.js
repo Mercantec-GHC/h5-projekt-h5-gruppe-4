@@ -5,8 +5,8 @@ import { useSelectedLayoutSegment } from 'next/navigation';
 
 import Navigation from './navigation';
 import Loader from './Components/loader';
-import { refresh } from '@/api/refresh';
 import { useAppContext } from './AppContext';
+import { refresh } from '@/api';
 
 export default function RefreshLayout({ children, navn }) {
     const { setIsLoggedIn, isLoggedIn } = useAppContext();
@@ -55,15 +55,22 @@ export default function RefreshLayout({ children, navn }) {
     }
 
     return (
-        <Box sx={{ flex: 1, pt: '75px' }}>
+        <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+            {/* Navigation */}
             <Navigation aktiv={activeSegment} navn={navn} />
+
+            {/* Content */}
             <Box
                 sx={{
                     flex: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    px: 2,
                     pt: {
-                        xs: '65px',
-                        md: '50px',
-                    },
+                        xs: "70px", // højde på navbar mobil
+                        md: "80px"  // højde på navbar desktop
+                    }
                 }}
             >
                 {children}
