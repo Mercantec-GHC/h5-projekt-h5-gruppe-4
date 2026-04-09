@@ -6,8 +6,11 @@ export async function GET(req) {
         const res = await fetch(apiUrl, {
             method: "GET",
             headers: {
-                "Authorization": authHeader || ""
-            }
+                "Content-Type": "application/json",
+                "Authorization": authHeader?.startsWith("Bearer ")
+                    ? authHeader
+                    : `Bearer ${authHeader}`
+            },
         });
 
         let data;

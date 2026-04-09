@@ -28,7 +28,7 @@ const CreateGame = ({ setResponse }) => {
 
     const schema = Yup.object().shape({
         TimeLimitSeconds: Yup.number().min(0, TimeLimitSecondsErr),
-        MaxPlayers: Yup.number().min(2, MaxPlayersErr).max(10, MaxPlayersErr)
+        MaxPlayers: Yup.number().min(1, MaxPlayersErr).max(10, MaxPlayersErr)
     })
 
 

@@ -1,9 +1,16 @@
 import * as signalR from "@microsoft/signalr";
 import { url } from "@/config/config";
 
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl(url.baseURL.replace("/api", "") + "/hub") // Juster URL'en til din SignalR-hub
-    .withAutomaticReconnect()
-    .build();
+let connection = null;
 
-export default connection;
+export const getConnection = () => {
+    if (!connection) {
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl(url.baseURL + "/game/hub", {
+                withCredentials: true
+            })
+            .withAutomaticReconnect()
+            .build();
+    }
+    return connection;
+};

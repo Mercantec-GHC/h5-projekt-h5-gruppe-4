@@ -31,7 +31,7 @@ const MenuItems = ({ retning, aktiv, sider, StyledLink, handleCloseNavMenu, mark
             {isLoggedIn && <MenuItem onClick={handleCloseNavMenu} sx={
                 aktivSide(aktiv === 'profil')
             }>
-                <StyledLink prefetch={false} className='link' href='/profil'>
+                <StyledLink prefetch={false} className='link' href='/profile'>
                     <Tooltip title="Profile" placement="bottom">
                         <Avatar sx={{ bgcolor: 'black', width: 32, height: 32 }}>
                             <PiCarProfileFill color='yellow' />

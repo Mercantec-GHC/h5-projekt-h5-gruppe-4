@@ -11,7 +11,7 @@ export async function POST(req) {
             },
             body: JSON.stringify(body)
         });
-
+        console.log("LOGIN PROXY RESPONSE:", res); // 👈 vigtigt!
         let data;
         if (res.ok) {
             data = await res.json();

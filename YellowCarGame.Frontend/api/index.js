@@ -4,6 +4,9 @@ import register from "./register";
 import hentData from "./getAuth";
 import createGame from "./createGame";
 import joinAuth from "./joinAuth";
+import uploadAvatar from "./avatar";
+import hentAvatar from "./getAvatar";
+import deleteAvatar from "./deleteAvatar";
 
 export {
     login,
@@ -11,5 +14,8 @@ export {
     register,
     hentData,
     createGame,
-    joinAuth
+    joinAuth,
+    uploadAvatar,
+    hentAvatar,
+    deleteAvatar,
 }

@@ -1,17 +1,96 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { Box, Button, Slider, Typography } from "@/lib/mui";
+import React, { useEffect, useRef, useState } from "react";
+import { Badge, Box, Button, Slider, Typography } from "@/lib/mui";
 import Cropper from "cropperjs";
+import { MdOutlineDeleteForever, MdOutlineEdit } from "react-icons/md";
+import { ModalElement } from "$/Components";
+import { deleteAvatar, hentAvatar, uploadAvatar } from "@/api";
 
-export default function AvatarCropper() {
+export default function AvatarCropper({ bruger }) {
     const imageRef = useRef(null);
     const cropperRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     const [image, setImage] = useState(null);
-    const [preview, setPreview] = useState(null);
-    const [zoom, setZoom] = useState(1);
+    const [avatar, setAvatar] = useState(null);
+    const [open, setOpen] = useState(false);
 
+    const hasAvatar = !!avatar;
+    const toggleModal = () => setOpen(!open);
+
+    useEffect(() => {
+        if (!bruger?.id) return;
+
+        hentAvatar(bruger.id)
+            .then(url => {
+                setAvatar(url);
+            })
+            .catch(err => {
+                console.error("HENT AVATAR FEJL:", err);
+            });
+
+    }, [bruger?.id]);
+
+    // Klik avatar
+    const handleAvatarClick = () => {
+        if (!hasAvatar) {
+            fileInputRef.current.click();
+        } else {
+            toggleModal();
+        }
+    };
+    useEffect(() => {
+        if (!image || !imageRef.current) return;
+
+        // cleanup gammel cropper
+        if (cropperRef.current) {
+            cropperRef.current.destroy();
+            cropperRef.current = null;
+        }
+
+        const cropper = new Cropper(imageRef.current, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: "move",
+
+            autoCropArea: 1,
+
+            movable: true,
+            zoomable: true,
+            zoomOnTouch: true,
+            zoomOnWheel: true,
+
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+
+            guides: false,
+            center: false,
+            highlight: false,
+            background: false,
+
+            responsive: true,
+            checkOrientation: false,
+
+            crop() {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 200,
+                    height: 200
+                });
+
+                if (canvas) {
+                    setAvatar(canvas.toDataURL());
+                }
+            }
+        });
+
+        cropperRef.current = cropper;
+
+        return () => {
+            cropper.destroy();
+            cropperRef.current = null;
+        };
+    }, [image]);
     // Upload billede
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -19,47 +98,10 @@ export default function AvatarCropper() {
 
         const url = URL.createObjectURL(file);
         setImage(url);
+        setOpen(true);
     };
 
-    // Når billedet er loaded → init cropper
-    const handleImageLoad = () => {
-        if (cropperRef.current) {
-            cropperRef.current.destroy();
-        }
-
-        cropperRef.current = new Cropper(imageRef.current, {
-            aspectRatio: 1,
-            viewMode: 3,
-            autoCropArea: 1,
-            dragMode: "move",
-            guides: false,
-            center: false,
-            highlight: false,
-            crop: updatePreview
-        });
-    };
-
-    // Live preview
-    const updatePreview = () => {
-        if (!cropperRef.current) return;
-
-        const canvas = cropperRef.current.getCroppedCanvas({
-            width: 200,
-            height: 200
-        });
-
-        setPreview(canvas.toDataURL());
-    };
-
-    // Zoom slider
-    const handleZoom = (e, value) => {
-        setZoom(value);
-        if (cropperRef.current) {
-            cropperRef.current.zoomTo(value);
-        }
-    };
-
-    // Gem billede
+    // Save
     const handleSave = async () => {
         if (!cropperRef.current) return;
 
@@ -69,110 +111,141 @@ export default function AvatarCropper() {
         });
 
         canvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append("file", blob, "avatar.png");
+            try {
 
-            const res = await fetch("/api/account/avatar", {
-                method: "POST",
-                body: formData
-            });
-
-            if (res.ok) {
-                const croppedImage = canvas.toDataURL("image/png");
+                await uploadAvatar(blob);
+                setAvatar(blob);
+                const cropped = canvas.toDataURL("image/png");
 
                 document.querySelectorAll(".avatar-img").forEach(img => {
-                    img.src = croppedImage;
+                    img.src = cropped;
                 });
+
+                setOpen(false);
+
+            } catch (err) {
+                console.error("UPLOAD ERROR:", err);
             }
         });
     };
 
+    // Slet avatar
+    const handleDelete = async () => {
+        try {
+            await deleteAvatar(bruger.id);
+            setAvatar(null);
+        } catch (err) {
+            console.error("DELETE ERROR:", err);
+        }
+    };
+
     return (
-        <Box
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 3,
-                alignItems: "center"
-            }}
-        >
-            <Typography variant="h5">Upload Avatar</Typography>
+        <>
+            {/* Hidden file input */}
+            <input
+                ref={fileInputRef}
+                hidden
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+            />
 
-            {/* Upload */}
-            <Button variant="contained" component="label">
-                Choose Image
-                <input hidden type="file" accept="image/*" onChange={handleFileChange} />
-            </Button>
-
-            {/* Cropper + Preview */}
-            {image && (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: { xs: "column", md: "row" },
-                        gap: 3,
-                        alignItems: "center"
-                    }}
-                >
-                    {/* Cropper */}
-                    <Box
-                        sx={{
-                            width: 256,
-                            height: 256,
-                            overflow: "hidden",
-                            borderRadius: "50%",
-                            boxShadow: 3
-                        }}
+            {/* Avatar */}
+            <Box onClick={handleAvatarClick} sx={{ cursor: "pointer" }}>
+                {hasAvatar ? (
+                    <Badge
+                        overlap="circular"
+                        color="success"
+                        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                        badgeContent={
+                            <Box onClick={(e) => {
+                                e.stopPropagation();
+                                fileInputRef.current.click();
+                            }}>
+                                <MdOutlineEdit />
+                            </Box>
+                        }
                     >
-                        <img
-                            ref={imageRef}
-                            src={image}
-                            alt="Crop"
-                            onLoad={handleImageLoad}
-                            style={{ maxWidth: "100%" }}
-                        />
-                    </Box>
-
-                    {/* Preview */}
-                    {preview && (
-                        <Box sx={{ textAlign: "center" }}>
-                            <Typography variant="body2">Preview</Typography>
+                        <Badge
+                            overlap="circular"
+                            color="error"
+                            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                            badgeContent={
+                                <Box onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete();
+                                }}>
+                                    <MdOutlineDeleteForever />
+                                </Box>
+                            }
+                        >
                             <Box
                                 component="img"
-                                src={preview}
+                                src={avatar}
+                                className="avatar-img"
                                 sx={{
                                     width: 120,
                                     height: 120,
-                                    borderRadius: "50%",
-                                    mt: 1,
-                                    boxShadow: 2
+                                    borderRadius: "50%"
+                                }}
+                            />
+                        </Badge>
+                    </Badge>
+                ) : (
+                    <Box
+                        sx={{
+                            width: 120,
+                            height: 120,
+                            borderRadius: "50%",
+                            border: "2px dashed gray",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        <Typography>+</Typography>
+                    </Box>
+                )}
+            </Box>
+
+            {/* Modal */}
+            <ModalElement
+                open={open}
+                handleOpen={toggleModal}
+                titel="Edit Avatar"
+                width={400}
+                height="auto"
+            >
+                {image && (
+                    <>
+                        <Box
+                            sx={{
+                                width: 250,
+                                height: 250,
+                                mx: "auto",
+                            }}
+                        >
+                            <img
+                                ref={imageRef}
+                                src={image}
+                                alt="crop"
+                                style={{
+                                    display: "block",
+                                    maxWidth: "100%"
                                 }}
                             />
                         </Box>
-                    )}
-                </Box>
-            )}
-
-            {/* Zoom */}
-            {image && (
-                <Box sx={{ width: 250 }}>
-                    <Typography variant="body2">Zoom</Typography>
-                    <Slider
-                        min={0.5}
-                        max={3}
-                        step={0.01}
-                        value={zoom}
-                        onChange={handleZoom}
-                    />
-                </Box>
-            )}
-
-            {/* Save */}
-            {image && (
-                <Button variant="contained" onClick={handleSave}>
-                    Save Avatar
-                </Button>
-            )}
-        </Box>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            onClick={handleSave}
+                            sx={{ mt: 2 }}
+                        >
+                            Save
+                        </Button>
+                    </>
+                )}
+            </ModalElement>
+        </>
     );
 }

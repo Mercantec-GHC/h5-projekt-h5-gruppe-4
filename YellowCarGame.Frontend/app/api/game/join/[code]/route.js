@@ -8,8 +8,11 @@ export async function GET(req, { params }) {
         const res = await fetch(apiUrl, {
             method: "GET",
             headers: {
-                Authorization: authHeader || ""
-            }
+                "Content-Type": "application/json",
+                "Authorization": authHeader?.startsWith("Bearer ")
+                    ? authHeader
+                    : `Bearer ${authHeader}`
+            },
         });
 
         const contentType = res.headers.get("content-type");

@@ -7,6 +7,7 @@ import Navigation from './navigation';
 import Loader from './Components/loader';
 import { useAppContext } from './AppContext';
 import { refresh } from '@/api';
+import "cropperjs/dist/cropper.css";
 
 export default function RefreshLayout({ children, navn }) {
     const { setIsLoggedIn, isLoggedIn } = useAppContext();

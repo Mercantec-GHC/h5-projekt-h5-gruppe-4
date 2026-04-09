@@ -1,11 +1,13 @@
 'use client'
-import { Box, Button } from '@mui/material';
+import { Badge, Box, Button } from '@mui/material';
 import { Title } from '$/Components';
 import { useEffect, useState } from 'react';
 import { useAppContext } from '$/AppContext';
 import { laesDekrypteret } from '@/helpers/storage';
 import Loader from '../Components/loader';
 import withAuth from '../withAuth';
+import { MdOutlineDeleteForever } from "react-icons/md";
+import { MdOutlineEdit } from "react-icons/md";
 import { AvatarCropper } from "$/Components";
 import { useRouter } from 'next/navigation';
 
@@ -78,28 +80,15 @@ const Profile = () => {
                     {welcome.replace('{username}', bruger?.username)}
                 </Title>
 
-                {/* Avatar + Cropper */}
-                <Box
-                    component="img"
-                    src={bruger?.avatar || "/default-avatar.png"}
-                    sx={{
-                        width: 100,
-                        height: 100,
-                        borderRadius: "50%",
-                        mb: 2
-                    }}
-                />
                 <Box
                     sx={{
-                        width: "100%",
-                        maxWidth: 500,
-                        p: 3,
-                        borderRadius: 3,
-                        boxShadow: 3,
-                        backgroundColor: "background.paper"
+                        position: "fixed",
+                        top: { xs: 80, md: 90 },
+                        right: 20,
+                        zIndex: 1000
                     }}
                 >
-                    <AvatarCropper />
+                    <AvatarCropper bruger={bruger} />
                 </Box>
 
                 {/* Knap */}
