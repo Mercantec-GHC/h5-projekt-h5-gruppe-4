@@ -49,6 +49,12 @@
         public string Color { get; set; }
     }
 
+    public class CarClaimed
+    {
+        public string CarId { get; set; }
+        public string UserId { get; set; }
+    }
+
     public class ScoreUpdated
     {
         public string UserId { get; set; }
