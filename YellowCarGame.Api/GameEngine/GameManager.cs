@@ -94,7 +94,7 @@ namespace YellowCarGame.Api.GameEngine
             {
                 Console.WriteLine($"Received action '{action}' with payload: {payload}");
 
-                if (action == "setReadyStatus")
+                if (action == "SetReadyStatus")
                 {
                     // Expecting payload to be "true" or "false"
                     player.IsReady = bool.TryParse(payload, out var ready) && ready;
@@ -105,6 +105,32 @@ namespace YellowCarGame.Api.GameEngine
                     {
                         player.UserId
                     });
+                }
+                else if (action == "StartGame")
+                {
+                    if (game.Start())
+                    {
+                        // Notify all clients in the game that the game has started
+                        await hub.Clients.Group(gameId).SendAsync("GameStart", new GameStart
+                        {
+                            TimeLimitSeconds = game.TimeLimitSeconds
+                        });
+                    }
+                }
+                else if (action == "ClaimCar")
+                {
+                    // Expecting payload to be the car ID
+                    var car = game.Cars.FirstOrDefault(c => c.Id == payload);
+                    if (car != null && !car.IsClaimed)
+                    {
+                        car.IsClaimed = true;
+                        // Notify all clients in the game that the car has been claimed
+                        await hub.Clients.Group(gameId).SendAsync("CarClaimed", new
+                        {
+                            CarId = car.Id,
+                            ClaimedBy = player.UserId
+                        });
+                    }
                 }
             }
             catch (Exception ex)

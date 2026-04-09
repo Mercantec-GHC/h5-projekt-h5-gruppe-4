@@ -33,7 +33,7 @@ namespace YellowCarGame.Api.GameEngine
                         continue;
                     }
 
-                    var events = game.Update();
+                    var events = game.Update(tick);
 
                     foreach (var evt in events)
                     {
