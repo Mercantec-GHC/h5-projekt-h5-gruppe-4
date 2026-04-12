@@ -29,7 +29,7 @@ const MenuItems = ({ retning, aktiv, sider, StyledLink, handleCloseNavMenu, mark
                 )
             })}
             {isLoggedIn && <MenuItem onClick={handleCloseNavMenu} sx={
-                aktivSide(aktiv === 'profil')
+                aktivSide(aktiv === 'profile')
             }>
                 <StyledLink prefetch={false} className='link' href='/profile'>
                     <Tooltip title="Profile" placement="bottom">

@@ -1,22 +1,28 @@
 "use client"
 import React, { useState, useEffect } from "react";
 import { Box, Button } from "@/lib/mui";
+import withAuth from "@/app/withAuth";
 import { useRouter, useParams } from "next/navigation";
 import { getConnection } from "$/game/signalr";
 import { laesDekrypteret } from "@/helpers/storage";
+import { useSearchParams } from "next/navigation";
 import Loader from "@/app/Components/loader";
 
-const OpretBruger = () => {
+const OpretSpil = () => {
     const params = useParams();
+    const searchParams = useSearchParams();
+    const gameId = searchParams.get("id");
     const gamecode = params?.gamecode;
 
     const [bruger, setBruger] = useState(null);
     const [myId, setMyId] = useState(null);
     const [players, setPlayers] = useState([]);
-    const [maxPlayers, setMaxPlayers] = useState(1);
+    const [maxPlayers, setMaxPlayers] = useState(2);
     const [gameDuration, setGameDuration] = useState(300);
 
     const router = useRouter();
+
+
 
     // 🔐 Load bruger
     useEffect(() => {
@@ -31,7 +37,7 @@ const OpretBruger = () => {
     const isReady = me?.isReady ?? false;
 
     // 🔘 Toggle ready
-    const handleClick = () => {
+    const handleClick = async () => {
         const conn = getConnection();
 
         const me = players.find(p => p.userId === myId);
@@ -39,31 +45,26 @@ const OpretBruger = () => {
         const newReady = !currentReady;
 
         console.log("CLICK READY");
-        console.log("My ID:", myId);
-        console.log("Current isReady:", currentReady);
 
-        setPlayers(prev =>
-            prev.map(p =>
-                p.userId === myId
-                    ? { ...p, isReady: newReady }
-                    : p
-            )
-        );
+        try {
+            conn.invoke(
+                "PlayerAction",
+                gameId,
+                "SetReadyStatus",
+                JSON.stringify(newReady)
+            );
 
-        // 🔥 Send til backend
-        conn.invoke(
-            "PlayerAction",
-            gamecode,
-            "SetReadyStatus",
-            JSON.stringify(newReady)
-        )
-            .then(() => console.log("READY SENT"))
-            .catch(err => console.error("READY ERROR:", err));
+            console.log("READY SENT");
+
+            // 🔥 Vent lidt så backend når at opdatere
+
+        } catch (err) {
+            console.error("READY ERROR:", err);
+        }
     };
 
-    // 🔌 SignalR connection
     useEffect(() => {
-        if (!myId || !gamecode) return;
+        if (!myId || !gameId) return;
 
         const conn = getConnection();
 
@@ -75,7 +76,7 @@ const OpretBruger = () => {
 
                     // 🎮 Game start
                     conn.on("GameStart", () => {
-                        router.push("/game/play/" + gamecode);
+                        router.push(`/game/play/${gamecode}?id=${gameId}`);
                     });
 
                     // 📊 Game info
@@ -84,27 +85,41 @@ const OpretBruger = () => {
                         setGameDuration(data.duration);
                     });
 
-                    // 👥 All players
                     conn.on("AllPlayers", (data) => {
-                        console.log("AllPlayers RAW:", data.players);
+                        const unique = [];
 
-                        setPlayers(data.players.map(p => ({
-                            userId: p.userId ?? p.UserId,
-                            username: p.userName ?? p.UserName,
-                            isReady: p.isReady ?? p.IsReady ?? false
-                        })));
+                        data.players.forEach(p => {
+                            const id = p.userId ?? p.UserId;
+
+                            if (!unique.some(u => u.userId === id)) {
+                                unique.push({
+                                    userId: id,
+                                    username: p.userName ?? p.UserName,
+                                    isReady: p.isReady ?? p.IsReady ?? false
+                                });
+                            }
+                        });
+
+                        console.log("Filtered players:", unique);
+
+                        setPlayers(unique);
                     });
 
-                    // ➕ Player joined
                     conn.on("PlayerJoined", (player) => {
-                        setPlayers(prev => [
-                            ...prev,
-                            {
-                                userId: player.userId ?? player.UserId,
-                                username: player.userName ?? player.UserName,
-                                isReady: false
-                            }
-                        ]);
+                        const id = player.userId ?? player.UserId;
+
+                        setPlayers(prev => {
+                            if (prev.some(p => p.userId === id)) return prev;
+
+                            return [
+                                ...prev,
+                                {
+                                    userId: id,
+                                    username: player.userName ?? player.UserName,
+                                    isReady: false
+                                }
+                            ];
+                        });
                     });
 
                     // ➖ Player left
@@ -154,7 +169,7 @@ const OpretBruger = () => {
 
                     console.log("Joining game:", gamecode, myId);
 
-                    await conn.invoke("JoinGame", gamecode, myId);
+                    await conn.invoke("JoinGame", gameId, myId);
                 }
             } catch (err) {
                 console.error("SignalR error:", err);
@@ -185,7 +200,7 @@ const OpretBruger = () => {
             </Box>
         );
     }
-
+    const isConnected = players.length > 0;
     // 🎨 UI
     return (
         <Box sx={{
@@ -228,7 +243,7 @@ const OpretBruger = () => {
                     const conn = getConnection();
 
                     try {
-                        await conn.invoke("LeaveGame", gamecode);
+                        conn.invoke("LeaveGame", gameId);
                         if (conn.state === "Connected") await conn.stop();
                     } catch (err) {
                         console.error(err);
@@ -243,13 +258,15 @@ const OpretBruger = () => {
             <Button
                 variant="outlined"
                 sx={{ mt: 2 }}
+                disabled={!isConnected}
                 onClick={async () => {
                     const conn = getConnection();
 
                     try {
+                        console.log("PLAYERS:", players);
                         await conn.invoke(
                             "PlayerAction",
-                            gamecode,
+                            gameId,
                             "StartGame",
                             JSON.stringify({})
                         );
@@ -264,4 +281,4 @@ const OpretBruger = () => {
     );
 };
 
-export default OpretBruger;
+export default withAuth(OpretSpil);

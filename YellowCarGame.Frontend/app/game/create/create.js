@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 import { ErrorMessage } from '@hookform/error-message';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from "next/navigation";
-import { createGame } from "@/api";
+import { createGame, joinAuth } from "@/api";
 
 const CreateGame = ({ setResponse }) => {
     const router = useRouter();
@@ -39,8 +39,13 @@ const CreateGame = ({ setResponse }) => {
 
     const onSubmit = async (data) => {
         createGame(data).then((d) => {
-            setResponse(d);
-            router.push('/game/lobby/' + d.code);
+            console.log("Game created successfully:", d);
+            joinAuth(d).then((dy) => {
+                console.log("Game created and joined successfully:", dy);
+                router.push(`/game/lobby/${d.code}?id=${d.gameId}`);
+            }).catch(err => {
+                setResponse(err)
+            });
         }).catch(err => {
             setResponse(err)
         });

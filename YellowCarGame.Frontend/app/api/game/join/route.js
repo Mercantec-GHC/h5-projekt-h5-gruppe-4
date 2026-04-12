@@ -1,8 +1,10 @@
 import { url } from "@/config/config";
 
-export async function GET(req, { params }) {
+export async function GET(req) {
     const authHeader = req.headers.get("authorization");
-    const apiUrl = `${url.baseURL}/Game/Join/${params.code}`;
+    const { searchParams } = new URL(req.url);
+    const code = searchParams.get("code");
+    const apiUrl = `${url.baseURL}/Game/Join/${code}`;
 
     try {
         const res = await fetch(apiUrl, {

@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { ErrorMessage } from '@hookform/error-message';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { register } from "@/api";
+import { joinAuth } from "@/api";
 import { useRouter } from "next/navigation";
 
 const JoinGame = () => {
@@ -14,7 +14,7 @@ const JoinGame = () => {
     const labels = {
         joinErr: 'You must enter a game code to join a game',
         Gamecode: 'Game Code',
-        wrongkode: 'Invalid game code. Please enter a code between 1111 and 9999.',
+        wrongkode: 'Invalid game code. Please enter a valid code.',
         join: 'Join Game',
     }
 
@@ -26,9 +26,7 @@ const JoinGame = () => {
 
     const schema = Yup.object().shape({
         Gamecode: Yup.string()
-            .matches(/^[A-Z0-9]+$/, wrongkode)
-            .min(4, wrongkode)
-            .max(4, wrongkode)
+            .matches(/^[A-Za-z0-9]{4}$/, wrongkode)
             .required(joinErr)
     });
 
@@ -39,10 +37,12 @@ const JoinGame = () => {
     });
 
     const onSubmit = async (data) => {
+        console.log("Attempting to join game with code:", data);
         joinAuth(data).then((d) => {
             router.push('/game/lobby/' + data.Gamecode);
         }).catch(err => {
-            setResponse(err)
+            console.error("Error joining game:", err);
+            //setResponse(err)
         });
     }
 
@@ -70,7 +70,7 @@ const JoinGame = () => {
                             fullWidth
                             label={Gamecode}
                             onChange={onChange}
-                            type="number"
+                            type="text"
                             error={!!errors.Gamecode}
                             helperText={<ErrorMessage errors={errors} name="Gamecode" />}
                         />

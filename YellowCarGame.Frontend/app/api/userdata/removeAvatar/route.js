@@ -1,5 +1,4 @@
 import { url } from "@/config/config";
-
 export async function DELETE(req) {
     try {
         const authHeader = req.headers.get("authorization");
@@ -10,21 +9,20 @@ export async function DELETE(req) {
         const res = await fetch(`${url.baseURL}/Auth/avatar/${userId}`, {
             method: "DELETE",
             headers: {
-                Authorization: authHeader?.startsWith("Bearer ")
-                    ? authHeader
-                    : `Bearer ${authHeader}`
+                Authorization: authHeader
             }
         });
 
-        // const data = res.ok ? await res.json() : await res.text();
+        // 🔥 vigtig fix
+        if (res.status === 204) {
+            return new Response(null, { status: 204 });
+        }
 
-        return new Response(
-            // typeof data === "string" ? data : JSON.stringify(data),
-            {
-                status: res.status,
-                headers: { "Content-Type": "application/json" }
-            }
-        );
+        const text = await res.text();
+
+        return new Response(text, {
+            status: res.status
+        });
 
     } catch (error) {
         console.error("DELETE AVATAR ERROR:", error);

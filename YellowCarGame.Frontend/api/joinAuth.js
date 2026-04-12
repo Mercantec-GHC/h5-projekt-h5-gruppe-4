@@ -1,9 +1,10 @@
 import { api } from "@/config/config";
 
 const joinAuth = async (gameId) => {
+    console.log("joinAuth called with gameId:", gameId);
     try {
         const response = await api().get(
-            `/api/game/join/${gameId}`);
+            `/api/game/join?code=${gameId.Gamecode || gameId.code}`);
 
         return response.data;
 

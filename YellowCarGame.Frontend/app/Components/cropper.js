@@ -27,6 +27,7 @@ export default function AvatarCropper({ bruger }) {
                 setAvatar(url);
             })
             .catch(err => {
+                console.log("No avatar found, or error fetching avatar:", err);
                 console.error("HENT AVATAR FEJL:", err);
             });
 
@@ -114,12 +115,8 @@ export default function AvatarCropper({ bruger }) {
             try {
 
                 await uploadAvatar(blob);
-                setAvatar(blob);
                 const cropped = canvas.toDataURL("image/png");
-
-                document.querySelectorAll(".avatar-img").forEach(img => {
-                    img.src = cropped;
-                });
+                setAvatar(cropped);
 
                 setOpen(false);
 
@@ -133,10 +130,17 @@ export default function AvatarCropper({ bruger }) {
     const handleDelete = async () => {
         try {
             await deleteAvatar(bruger.id);
-            setAvatar(null);
         } catch (err) {
-            console.error("DELETE ERROR:", err);
+            // 👇 accepter denne fejl som OK
+            if (err.response?.data?.includes("Avatar not found")) {
+                console.log("Avatar already deleted");
+            } else {
+                console.error(err);
+                return;
+            }
         }
+
+        setAvatar(null);
     };
 
     return (

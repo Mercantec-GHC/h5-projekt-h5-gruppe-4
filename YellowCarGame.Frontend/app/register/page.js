@@ -7,8 +7,10 @@ import { ErrorMessage } from '@hookform/error-message';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { register } from "@/api";
 import { useRouter } from "next/navigation";
+import { useAppContext } from "../AppContext";
 
-const OpretBruger = ({ setResponse, setVisning, farve }) => {
+const OpretBruger = () => {
+    const { setResponse } = useAppContext();
     const router = useRouter();
 
     const labels = {
@@ -51,9 +53,8 @@ const OpretBruger = ({ setResponse, setVisning, farve }) => {
     const onSubmit = async (data) => {
         data.username = data.username.trim();
         register(data).then((d) => {
-            setVisning('')
             setResponse("User created successfully! Please log in.");
-            router.push('/login');
+            router.push('/');
         }).catch(err => {
             setResponse(err)
         })//*/
@@ -155,7 +156,6 @@ const OpretBruger = ({ setResponse, setVisning, farve }) => {
                         variant="contained"
                         size="large"
                         fullWidth
-                        sx={{ bgcolor: farve }}
                     >
                         gem
                     </Button>

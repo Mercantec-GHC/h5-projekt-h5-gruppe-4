@@ -6,8 +6,6 @@ import { useAppContext } from '$/AppContext';
 import { laesDekrypteret } from '@/helpers/storage';
 import Loader from '../Components/loader';
 import withAuth from '../withAuth';
-import { MdOutlineDeleteForever } from "react-icons/md";
-import { MdOutlineEdit } from "react-icons/md";
 import { AvatarCropper } from "$/Components";
 import { useRouter } from 'next/navigation';
 
@@ -103,4 +101,4 @@ const Profile = () => {
         </Box>
     );
 }
-export default Profile;
+export default withAuth(Profile);

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import CreateGame from "./create/create";
 import JoinGame from "./join/join";
 import { useAppContext } from "../AppContext";
+import withAuth from "../withAuth";
 
 const Spil = () => {
     const { setResponse, response } = useAppContext();
@@ -32,4 +33,4 @@ const Spil = () => {
     );
 };
 
-export default Spil;
+export default withAuth(Spil);

@@ -20,24 +20,22 @@ export default function RefreshLayout({ children, navn }) {
         const checkLogin = async () => {
             try {
                 await refresh();
+                console.log("Login check successful");
                 if (mounted) setIsLoggedIn(true);
             } catch (err) {
+                console.error("Login check failed", err);
                 if (mounted) setIsLoggedIn(false);
             } finally {
                 if (mounted) setIsLoading(false);
             }
         };
 
-        if (isLoggedIn) {
-            checkLogin();
-        } else {
-            setIsLoading(false);
-        }
+        checkLogin();
 
         return () => {
             mounted = false;
         };
-    }, [isLoggedIn, setIsLoggedIn]);
+    }, [setIsLoggedIn]);
 
     if (isLoading) {
         return (
