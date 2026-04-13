@@ -1,15 +1,15 @@
 import { api } from '@/config/config';
 
-const login = async (data) => {
+const createGame = async (data) => {
     let res;
 
-    const login = await api().post("/api/userdata/login", data).then(response => {
+    const createGame = await api().post("/api/game/create", data).then(response => {
         res = response.data;
         return res
     }).catch((error) => {
         throw error.response.data;
     })
-    return login
+    return createGame
 }
 
-export default login;
+export default createGame;

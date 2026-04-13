@@ -1,15 +1,15 @@
 import { api } from '@/config/config';
 
-const login = async (data) => {
+const register = async (data) => {
     let res;
 
-    const login = await api().post("/api/userdata/login", data).then(response => {
+    const register = await api().post("/api/userdata/register", data).then(response => {
         res = response.data;
         return res
     }).catch((error) => {
         throw error.response.data;
     })
-    return login
+    return register
 }
 
-export default login;
+export default register;

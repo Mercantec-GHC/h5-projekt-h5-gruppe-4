@@ -1,12 +1,18 @@
-export async function GET(req) {
+import { url } from "@/config/config";
+export async function POST(req) {
     const authHeader = req.headers.get("authorization");
-
+    const apiUrl = `${url.baseURL}/Game/Start`;
+    const body = await req.json();
     try {
-        const res = await fetch("http://10.133.51.112:8080/Auth", {
-            method: "GET",
+        const res = await fetch(apiUrl, {
+            method: "POST",
             headers: {
-                "Authorization": authHeader || ""
-            }
+                Authorization: authHeader?.startsWith("Bearer ")
+                    ? authHeader
+                    : `Bearer ${authHeader}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
         });
 
         let data;
@@ -15,6 +21,7 @@ export async function GET(req) {
         } else {
             data = await res.text();
         }
+
 
         return new Response(
             typeof data === "string" ? data : JSON.stringify(data),
@@ -25,7 +32,7 @@ export async function GET(req) {
         );
 
     } catch (error) {
-        console.error("GET USER ERROR:", error);
+        console.error("CREATE GAME PROXY ERROR:", error);
         return new Response(JSON.stringify({ message: "Server error" }), {
             status: 500
         });

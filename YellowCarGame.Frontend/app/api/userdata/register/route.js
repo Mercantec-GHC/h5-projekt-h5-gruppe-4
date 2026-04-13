@@ -1,8 +1,10 @@
+import { url } from "@/config/config";
 export async function POST(req) {
     const body = await req.json();
+    const apiUrl = `${url.baseURL}/Auth/Register`;
 
     try {
-        const res = await fetch("http://10.133.51.112:8080/Auth", {
+        const res = await fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -27,7 +29,7 @@ export async function POST(req) {
         );
 
     } catch (error) {
-        console.error("LOGIN PROXY ERROR:", error); // 👈 vigtigt!
+        console.error("REGISTER PROXY ERROR:", error); // 👈 vigtigt!
         return new Response(JSON.stringify({ message: "Server error" }), {
             status: 500
         });
