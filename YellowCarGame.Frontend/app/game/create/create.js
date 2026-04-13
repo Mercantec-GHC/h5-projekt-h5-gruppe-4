@@ -27,8 +27,8 @@ const CreateGame = ({ setResponse }) => {
     }
 
     const schema = Yup.object().shape({
-        TimeLimitSeconds: Yup.number().min(0, TimeLimitSecondsErr),
-        MaxPlayers: Yup.number().min(1, MaxPlayersErr).max(10, MaxPlayersErr)
+        TimeLimitSeconds: Yup.number().min(0, TimeLimitSecondsErr).required(TimeLimitSecondsErr),
+        MaxPlayers: Yup.number().min(1, MaxPlayersErr).max(10, MaxPlayersErr).required(MaxPlayersErr)
     })
 
 
@@ -42,7 +42,7 @@ const CreateGame = ({ setResponse }) => {
             console.log("Game created successfully:", d);
             joinAuth(d).then((dy) => {
                 console.log("Game created and joined successfully:", dy);
-                router.push(`/game/lobby/${d.code}?id=${d.gameId}`);
+                router.push(`/game/lobby/${d.code}?id=${d.gameId}&players=${data.MaxPlayers}&duration=${data.TimeLimitSeconds}`);
             }).catch(err => {
                 setResponse(err)
             });

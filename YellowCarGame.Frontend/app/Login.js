@@ -114,6 +114,7 @@ export default function Login() {
                         render={({ field }) => (
                             <TextField
                                 {...field}
+                                autoFocus
                                 fullWidth
                                 label={username}
                                 error={!!errors.username}

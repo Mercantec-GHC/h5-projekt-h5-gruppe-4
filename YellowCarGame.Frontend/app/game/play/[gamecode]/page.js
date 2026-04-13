@@ -40,14 +40,14 @@ const GamePage = () => {
                 console.log("🎮 Game connected");
                 console.log("GAME ID:", gameId);
 
-                // ⏱️ Countdown
+                // Countdown
                 conn.on("Countdown", (data) => {
                     const sec = data.secondsLeft ?? data.SecondsLeft;
                     console.log("Countdown:", sec);
                     setCountdown(sec);
                 });
 
-                // 🚗 Spawn bil
+                // Spawn bil
                 conn.on("CarSpawned", (car) => {
                     console.log("🚗 CarSpawned:", car);
 
@@ -62,7 +62,7 @@ const GamePage = () => {
                     ]);
                 });
 
-                // ❌ Bil taget
+                // Bil taget
                 conn.on("CarClaimed", (data) => {
                     const id = data.carId ?? data.CarId;
 
@@ -87,7 +87,7 @@ const GamePage = () => {
                         console.log("STATE:", state);
 
                         if (state === "Active") {
-                            // 🔥 spil starter → fjern countdown
+                            // spil starter → fjern countdown
                             setCountdown(null);
                         }
 
@@ -103,7 +103,7 @@ const GamePage = () => {
                     console.log("🎯 STATE:", state);
 
                     if (state === "Active") {
-                        // 🔥 countdown færdig
+                        // countdown færdig
                         setCountdown(null);
                     }
 
@@ -154,11 +154,14 @@ const GamePage = () => {
 
         try {
             if (conn.state === "Connected") {
+                // 🔥 først fortæl serveren du går
                 await conn.invoke("LeaveGame", gameId);
+
+                // 🔥 derefter stop connection
                 await conn.stop();
             }
         } catch (err) {
-            console.error("Disconnect error:", err);
+            console.warn("Leave error (safe to ignore):", err);
         }
     };
 
@@ -254,7 +257,7 @@ const GamePage = () => {
                     <h1>🏁 Game Over</h1>
                     <h2>Score: {score}</h2>
 
-                    {/* 🔘 Profil */}
+                    {/* Profil */}
                     <Button
                         onClick={async () => {
                             await disconnect();
@@ -265,7 +268,7 @@ const GamePage = () => {
                         Til profil
                     </Button>
 
-                    {/* 🔘 Nyt spil */}
+                    {/* Nyt spil */}
                     <Button
                         onClick={async () => {
                             await disconnect();
@@ -316,7 +319,7 @@ const GamePage = () => {
                     border: "2px solid black"
                 }}
             >
-                {/* ⏱️ Countdown */}
+                {/* Countdown */}
                 {countdown !== null && (
                     <Box
                         sx={{
@@ -333,7 +336,7 @@ const GamePage = () => {
                     </Box>
                 )}
 
-                {/* 🛣️ Lanes */}
+                {/* Lanes */}
                 {lanes.map(lane => (
                     <Box
                         key={lane}
@@ -344,7 +347,7 @@ const GamePage = () => {
                             background: lane % 2 === 0 ? "#333" : "#2a2a2a"
                         }}
                     >
-                        {/* 🚗 Cars i denne lane */}
+                        {/* Cars i denne lane */}
                         {cars
                             .filter(car => car.lane === lane)
                             .map(car => (

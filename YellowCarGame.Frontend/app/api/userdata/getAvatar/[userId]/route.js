@@ -21,6 +21,13 @@ export async function GET(req, context) {
         },
     });
 
+    console.log(`Avatar for user ${userId} not found (status ${res.ok})`);
+    if (!res.ok) {
+        return new Response(JSON.stringify({ message: "Avatar not found" }), {
+            status: 404
+        });
+    }
+
     const buffer = await res.arrayBuffer();
 
     return new Response(buffer, {

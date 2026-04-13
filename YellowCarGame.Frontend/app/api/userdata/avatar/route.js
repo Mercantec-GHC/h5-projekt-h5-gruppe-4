@@ -21,7 +21,7 @@ export async function POST(req) {
         });
 
         const data = await res.text();
-
+        
         return new Response(data, {
             status: res.status,
             headers: {

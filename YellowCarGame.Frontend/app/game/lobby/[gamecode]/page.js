@@ -13,12 +13,13 @@ const OpretSpil = () => {
     const searchParams = useSearchParams();
     const gameId = searchParams.get("id");
     const gamecode = params?.gamecode;
-
+    const maxPlayerNumber = searchParams.get("players");
+    const gameDurationNumber = searchParams.get("duration");
     const [bruger, setBruger] = useState(null);
     const [myId, setMyId] = useState(null);
     const [players, setPlayers] = useState([]);
-    const [maxPlayers, setMaxPlayers] = useState(2);
-    const [gameDuration, setGameDuration] = useState(300);
+    const [maxPlayers, setMaxPlayers] = useState(maxPlayerNumber ? parseInt(maxPlayerNumber) : 1);
+    const [gameDuration, setGameDuration] = useState(gameDurationNumber ? parseInt(gameDurationNumber) : 300);
 
     const router = useRouter();
 
@@ -243,12 +244,18 @@ const OpretSpil = () => {
                     const conn = getConnection();
 
                     try {
-                        conn.invoke("LeaveGame", gameId);
-                        if (conn.state === "Connected") await conn.stop();
+                        if (conn.state === "Connected") {
+                            // 🔥 først fortæl serveren du går
+                            await conn.invoke("LeaveGame", gameId);
+
+                            // 🔥 derefter stop connection
+                            await conn.stop();
+                        }
                     } catch (err) {
-                        console.error(err);
+                        console.warn("Leave error (safe to ignore):", err);
                     }
 
+                    // 🔥 navigation til sidst
                     router.push("/game");
                 }}
             >
@@ -258,7 +265,7 @@ const OpretSpil = () => {
             <Button
                 variant="outlined"
                 sx={{ mt: 2 }}
-                disabled={!isConnected}
+                disabled={!isConnected || players.some(p => !p.isReady)}
                 onClick={async () => {
                     const conn = getConnection();
 

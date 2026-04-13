@@ -28,7 +28,7 @@ export default function AvatarCropper({ bruger }) {
             })
             .catch(err => {
                 console.log("No avatar found, or error fetching avatar:", err);
-                console.error("HENT AVATAR FEJL:", err);
+                console.error("HENT AVATAR:", err);
             });
 
     }, [bruger?.id]);
