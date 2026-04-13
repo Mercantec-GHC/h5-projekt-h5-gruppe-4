@@ -1,40 +1,41 @@
-'use client'
+'use client';
+import { useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import { useSelectedLayoutSegment } from 'next/navigation';
 
-import { useEffect, useState } from 'react'
-import { Box } from '@mui/material'
-import { useSelectedLayoutSegment } from 'next/navigation'
-
-import Navigation from './navigation'
-import Loader from './Components/loader'
-import { refresh } from '@/api'
-import { useAppContext } from './AppContext'
+import Navigation from './navigation';
+import Loader from './Components/loader';
+import { useAppContext } from './AppContext';
+import { refresh } from '@/api';
+import "cropperjs/dist/cropper.css";
 
 export default function RefreshLayout({ children, navn }) {
-    const { setIsLoggedIn } = useAppContext()
-    const [isLoading, setIsLoading] = useState(true)
-    const activeSegment = useSelectedLayoutSegment()
+    const { setIsLoggedIn, isLoggedIn } = useAppContext();
+    const [isLoading, setIsLoading] = useState(true);
+    const activeSegment = useSelectedLayoutSegment();
 
     useEffect(() => {
-        let mounted = true
+        let mounted = true;
 
-        refresh()
-            .then(res => {
-                if (!mounted) return
-                setIsLoggedIn(!res?.error)
-            })
-            .catch(() => {
-                if (!mounted) return
-                setIsLoggedIn(false)
-            })
-            .finally(() => {
-                if (!mounted) return
-                setIsLoading(false)
-            })
+        const checkLogin = async () => {
+            try {
+                await refresh();
+                console.log("Login check successful");
+                if (mounted) setIsLoggedIn(true);
+            } catch (err) {
+                console.error("Login check failed", err);
+                if (mounted) setIsLoggedIn(false);
+            } finally {
+                if (mounted) setIsLoading(false);
+            }
+        };
+
+        checkLogin();
 
         return () => {
-            mounted = false
-        }
-    }, [setIsLoggedIn])
+            mounted = false;
+        };
+    }, [setIsLoggedIn]);
 
     if (isLoading) {
         return (
@@ -47,30 +48,32 @@ export default function RefreshLayout({ children, navn }) {
                     width: '100vw',
                 }}
             >
-                <Loader
-                    sx={{ maxWidth: '50%' }}
-                    text="Indlæser..."
-                    size="large"
-                    type="threeDot"
-                />
+                <Loader text="Indlaeser..." size="large" type="threeDot" />
             </Box>
-        )
+        );
     }
 
     return (
-        <Box sx={{ flex: 1, pt: '75px' }}>
+        <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+            {/* Navigation */}
             <Navigation aktiv={activeSegment} navn={navn} />
+
+            {/* Content */}
             <Box
                 sx={{
                     flex: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    px: 2,
                     pt: {
-                        xs: '65px',
-                        md: '50px',
-                    },
+                        xs: "70px", // højde på navbar mobil
+                        md: "80px"  // højde på navbar desktop
+                    }
                 }}
             >
                 {children}
             </Box>
         </Box>
-    )
+    );
 }

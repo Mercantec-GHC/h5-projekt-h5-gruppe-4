@@ -22,7 +22,7 @@ const LogUd = () => {
         <Box sx={{ flexGrow: 0 }}>
             <Tooltip title={isLoggedIn ?? "Log ud"}>
                 <IconButton onClick={isLoggedIn ? handleLogUd : handleOpen} sx={{ p: 0 }}>
-                    <Avatar sx={{ bgcolor: 'yellow' }} aria-label="G">
+                    <Avatar sx={{ bgcolor: 'black', color: 'yellow' }} aria-label="G">
                         Bil
                     </Avatar>
                 </IconButton>

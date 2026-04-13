@@ -1,13 +1,13 @@
 meta {
-  name: Join Game
+  name: Connect to Game
   type: ws
-  seq: 2
+  seq: 4
 }
 
 ws {
   url: wss://{{baseUrl}}/game/hub
   body: ws
-  auth: inherit
+  auth: none
 }
 
 body:ws {
@@ -19,7 +19,18 @@ body:ws {
       "type": 1,
       "target": "JoinGame",
       "arguments": [
-        "{{gameId}}"
+        "{{gameId}}",
+        "{{userId}}"
+      ]
+    }
+    
+    {
+      "type": 1,
+      "target": "PlayerAction",
+      "arguments": [
+        "{{gameId}}",
+        "setReadyStatus",
+        "true"
       ]
     }
   '''

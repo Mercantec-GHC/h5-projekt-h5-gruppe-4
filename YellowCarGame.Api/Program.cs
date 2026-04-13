@@ -32,7 +32,23 @@ namespace YellowCarGame.Api
 
             builder.Services.AddControllers();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("Development", policy =>
+                {                    
+                    policy.SetIsOriginAllowed(origin =>
+                    {
+                        return true;
+                    })
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+                });
+            });
+
             var app = builder.Build();
+
+            app.UseCors("Development");
 
             app.MapDefaultEndpoints();
 

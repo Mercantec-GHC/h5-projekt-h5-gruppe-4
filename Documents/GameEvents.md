@@ -18,12 +18,12 @@ classDiagram
     class GetPlayers-Client {}
 
     class AllPlayers-Server {
-        + List<PlayerJoined>
+        + List<PlayerJoined> Players
     }
 
     class PlayerJoined-Server {
         + string UserId
-        + string PlayerName
+        + string UserName
     }
 
     class PlayerLeft-Server {

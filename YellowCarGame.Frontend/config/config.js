@@ -9,37 +9,35 @@ export const url = {
 
 const axiosInstance = axios.create({
     baseURL: `/`,
-    headers: {
-        'Content-Type': 'application/json'
-    }
 });
 
 axiosInstance.interceptors.response.use(
-    res => res,
-    async error => {
+    (res) => res,
+    async (error) => {
         const originalRequest = error.config;
 
-        // 🔒 Undgå uendelig refresh-loop
+        const isAuthRoute =
+            originalRequest.url.includes('/api/userdata/login') ||
+            originalRequest.url.includes('/api/userdata/refresh');
+
         if (
             error.response?.status === 401 &&
             !originalRequest._retry &&
-            !originalRequest.url.includes('Refresh') &&
-            !originalRequest.url.includes('/api/login')
+            !isAuthRoute
         ) {
             originalRequest._retry = true;
-
             try {
-                const user = laesDekrypteret("bruger");
-                if (!user?.id) {
-                    return Promise.reject(error);
+                await refresh();
+
+                // 🔥 HENT NYT TOKEN
+                const user = laesDekrypteret('jwt');
+                if (user?.jwtToken) {
+                    originalRequest.headers.Authorization = `Bearer ${user.jwtToken}`;
                 }
-                if (!user?.id) throw new Error("Ingen bruger-id");
 
-                await refresh({ id: user.id }); // forventer { id: 1 }
-
-                return axiosInstance(originalRequest); // 👈 brug samme instans
+                return axiosInstance(originalRequest);
             } catch (err) {
-                console.error("Refresh fejlede, redirecter:", err);
+                console.error('Refresh fejlede:', err);
                 return Promise.reject(err);
             }
         }

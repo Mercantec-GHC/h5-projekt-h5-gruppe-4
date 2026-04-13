@@ -1,110 +1,150 @@
-#include <ArduinoJson.h>
+#include <Arduino_MKRIoTCarrier.h>
+#include "EventSystem.h"
+#include "CarrierAdapter.h"
+#include "ScreenAdapterChunked.h"
+#include <Base64.h>
 
-void handleMessage(String jsonStr);
+MKRIoTCarrier carrier;
+EventSystem events;
+CarrierAdapter carrierAdapter;
+// ScreenAdapterChunked screen;
 
-// Buffer til indkommende data
-String buffer = "";
-
-// Event-timere
-unsigned long lastTempTime = 0;
-
-// Pin til knap-event
-const int buttonPin = 2;
-
-void setup() {
-  Serial.begin(9600);
-  pinMode(buttonPin, INPUT_PULLUP);
-}
-
-void loop() {
-  // Ikke-blokerende læsning af USB-serial
-  while (Serial.available()) {
-    char c = Serial.read();
-    if (c == '\n') {
-      handleMessage(buffer);
-      buffer = "";
-    } else {
-      buffer += c;
-    }
-  }
-
-  // Event: knap trykket
-  static int lastState = HIGH;
-  int state = digitalRead(buttonPin);
-  if (state != lastState) {
-    lastState = state;
-
-    StaticJsonDocument<128> eventDoc;
-    eventDoc["event"] = "buttonPressed";
-    eventDoc["data"]["pin"] = buttonPin;
-    eventDoc["data"]["state"] = state;
-
-    String out;
-    serializeJson(eventDoc, out);
-    Serial.println(out);
-  }
-
-  // Event: temperatur hvert 2. sekund
-  if (millis() - lastTempTime > 2000) {
-    lastTempTime = millis();
-
-    float fakeTemp = 22.5 + (millis() % 1000) / 100.0; // Demo-temp
-
-    StaticJsonDocument<128> eventDoc;
-    eventDoc["event"] = "tempUpdate";
-    eventDoc["data"]["temp"] = fakeTemp;
-
-    String out;
-    serializeJson(eventDoc, out);
-    Serial.println(out);
-  }
-}
-
-// Håndterer JSON-requests fra browseren
-void handleMessage(String jsonStr) {
-  StaticJsonDocument<256> doc;
-  DeserializationError err = deserializeJson(doc, jsonStr);
-
-  if (err) {
-    Serial.println("{\"error\":\"invalid_json\"}");
-    return;
-  }
-
-  const char* cmd = doc["cmd"];
-  int id = doc["id"] | -1;
-
-  // --- Kommando: ping ---
-  if (strcmp(cmd, "ping") == 0) {
-    StaticJsonDocument<128> reply;
-    reply["id"] = id;
+void onPing(JsonDocument& data) {
+	// StaticJsonDocument<128> reply;
+    JsonDocument reply;
+    reply["id"] = data["id"] | -1;
     reply["data"]["pong"] = true;
 
     String out;
     serializeJson(reply, out);
     Serial.println(out);
-    return;
-  }
+}
 
-  // --- Kommando: getTemp ---
-  if (strcmp(cmd, "getTemp") == 0) {
+void onGetTemp(JsonDocument& data) {
     float fakeTemp = 23.7;
 
-    StaticJsonDocument<128> reply;
-    reply["id"] = id;
+    // StaticJsonDocument<128> reply;
+    JsonDocument reply;
+    reply["id"] = data["id"] | -1;
     reply["data"]["temp"] = fakeTemp;
 
     String out;
     serializeJson(reply, out);
     Serial.println(out);
-    return;
-  }
+}
 
-  // Ukendt kommando
-  StaticJsonDocument<128> reply;
-  reply["id"] = id;
-  reply["error"] = "unknown_command";
+void onTouch(JsonDocument& data) {
+    String out;
+    serializeJson(data, out);
+    Serial.println(out);
+}
 
-  String out;
-  serializeJson(reply, out);
-  Serial.println(out);
+void onSetPixel(JsonDocument& data) {
+    int x = data["data"]["x"];
+    int y = data["data"]["y"];
+    uint16_t color = data["data"]["color"]; // RGB565
+
+    carrier.display.drawPixel(x, y, color);
+
+    // StaticJsonDocument<128> reply;
+    JsonDocument reply;
+    reply["id"] = data["id"];
+    reply["data"]["ok"] = true;
+
+    String out;
+    serializeJson(reply, out);
+    Serial.println(out);
+}
+
+void onSetLED(JsonDocument& data) {
+    int i = data["data"]["i"];
+    int r = data["data"]["r"];
+    int g = data["data"]["g"];
+    int b = data["data"]["b"];
+
+    carrier.leds.setPixelColor(i, r, g, b);
+    carrier.leds.show();
+
+    // StaticJsonDocument<128> reply;
+    JsonDocument reply;
+    reply["id"] = data["id"] | -1;
+    reply["data"]["ok"] = true;
+
+    String out;
+    serializeJson(reply, out);
+    Serial.println(out);
+}
+
+void onSetPixelChunk(JsonDocument& data) {
+    int x = data["data"]["x"];
+    int y = data["data"]["y"];
+
+    JsonArray arr = data["data"]["pixels"];
+
+    for (int i = 0; i < arr.size(); i++) {
+        carrier.display.drawPixel(x + i, y, (uint16_t)arr[i]);
+    }
+
+    StaticJsonDocument<64> reply;
+    reply["id"] = data["id"];
+    reply["data"]["ok"] = true;
+
+    String out;
+    serializeJson(reply, out);
+    Serial.println(out);
+}
+
+void onSetPixelLine(JsonDocument& data) {
+    int y = data["data"]["y"];
+    const char* base64Const = data["data"]["buffer"];
+
+    int encodedLen = strlen(base64Const);
+
+    // LAV SKRIVBAR KOPI
+    char* base64 = (char*)malloc(encodedLen + 1);
+    strcpy(base64, base64Const);
+
+    int decodedLen = base64_dec_len(base64, encodedLen);
+
+    static uint8_t lineBuf[240 * 2]; // 480 bytes
+
+    base64_decode((char*)lineBuf, base64, encodedLen);
+
+    free(base64);
+
+    carrier.display.drawRGBBitmap(
+        0, y,
+        (uint16_t*)lineBuf,
+        240,
+        1
+    );
+
+    StaticJsonDocument<64> reply;
+    reply["id"] = data["id"];
+    reply["data"]["ok"] = true;
+
+    String out;
+    serializeJson(reply, out);
+    Serial.println(out);
+}
+
+void setup() {
+    Serial.begin(9600);
+
+    events.begin();
+    carrierAdapter.begin(&events, &carrier);
+    // screen.begin(&events, &carrier);
+
+    events.on("ping", onPing);
+    events.on("getTemp", onGetTemp);
+    events.on("touch", onTouch);
+    events.on("setLED", onSetLED);
+    events.on("setPixel", onSetPixel);
+    events.on("setPixelChunk", onSetPixelChunk);
+    events.on("setPixelLine", onSetPixelLine);
+}
+
+void loop() {
+    events.update();
+    carrierAdapter.update();
 }

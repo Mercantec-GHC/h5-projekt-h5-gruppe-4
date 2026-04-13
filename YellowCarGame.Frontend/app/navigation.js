@@ -9,12 +9,12 @@ import { Box } from '@mui/material';
 const Navigation = ({ navn, aktiv }) => {
     const markering = {
         borderRadius: 5,
-        backgroundColor: 'yellow',
+        backgroundColor: 'green',
         fontWeight: 'bold'
     }
 
     const pages = [
-        { name: 'Nyt spil', link: '/newgame', activeSegment: 'newgame' },
+        { name: 'About', link: '/about', activeSegment: 'about' },
     ];
 
     const StyledLink = styled(Link)`

@@ -1,23 +1,25 @@
 import { api } from '@/config/config';
+import { laesDekrypteret, gemKrypteret } from '@/helpers/storage';
 
 const refresh = async () => {
-    let res;
+    const user = laesDekrypteret('jwt');
 
-    const refresh = await api().post('Auth/Refresh').then(response => {
-        res = response.data
-        return res
-    }).catch((error) => {
-        if (error.response) {
-            res = error.response.data;
-            throw res;
-        } else if (error.request) {
-            res = error.request;
-            throw res
-        } else {
-            res = error.message;
-            throw res
-        }
+    if (!user?.refreshToken) {
+        throw new Error("No refresh token");
+    }
+    const res = await api().post('/api/userdata/refresh', {
+        refreshToken: user.refreshToken,
     });
-    return refresh;
-}
+
+    if (res.data?.jwtToken) {
+        gemKrypteret('jwt', {
+            ...user,
+            jwtToken: res.data.jwtToken,
+            expiresIn: res.data.expiresIn,
+            refreshToken: res.data.refreshToken ?? user.refreshToken
+        });
+    }
+
+    return res.data;
+};
 export default refresh;

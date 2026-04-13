@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import login from '@/api/login';
+import React, { useState } from 'react';
+import { login, hentData } from '@/api';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useAppContext } from "$/AppContext";
+import { ErrorMessage } from '@hookform/error-message';
 import { useRouter } from 'next/navigation';
 import { Box } from '@/lib/mui';
 import { gemKrypteret } from '@/helpers/storage';
 import { Button, TextField } from '@mui/material';
-import hentData from '@/api/getAuth';
 
 export default function Login() {
     const router = useRouter();
@@ -17,12 +17,13 @@ export default function Login() {
 
 
     const labels = {
-        knap: 'Log ind',
-        brugernavnfejl: 'hvad med dit brugernavn???',
-        passwordFejl: 'Du skal bruge password for at logge ind',
-        brugernavn: 'email'
+        knap: 'Login',
+        register: 'Register',
+        brugernavnfejl: 'What about your username???',
+        passwordFejl: 'You must enter a password to log in',
+        username: 'username'
     }
-    const { knap, brugernavnfejl, passwordFejl, brugernavn } = labels;
+    const { knap, brugernavnfejl, passwordFejl, username, register } = labels;
     const schema = Yup.object().shape({
         username: Yup.string().required(brugernavnfejl),
         password: Yup.string().required(passwordFejl)
@@ -37,7 +38,7 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState('');
 
-    const { handleSubmit, formState: { errors }, control, setError } = useForm({
+    const { handleSubmit, formState: { errors }, control } = useForm({
         defaultValues,
         resolver: yupResolver(schema)
     });
@@ -47,22 +48,21 @@ export default function Login() {
         setIsLoading(true)
 
         login(data).then((res) => {
-            hentData(res.jwtToken).then(user => {
+            gemKrypteret("jwt", res);
+            hentData().then(user => {
                 setMessage(user);
                 setResponse('');
                 setIsLoading(false);
                 setIsLoggedIn(true);
                 gemKrypteret("bruger", user);
                 router.push('/profile');
-            }).catch(err => {
+            }).catch(() => {
                 setIsLoading(false);
-                console.log(err);
-                setStatus('Fejl ved hentning af brugerdata');
+                setStatus('Error occurred while fetching user data');
             });
         }).catch(err => {
             setIsLoading(false)
-            console.log(err);
-            setStatus(err || 'Login fejlede');
+            setStatus(err || 'Login failed');
         })
         return () => {
             cancel = true;
@@ -78,57 +78,93 @@ export default function Login() {
     }
 
     return (
-        <Box>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <Box sx={centrer}>
-                    <Box sx={centrer}>
-                        <Controller
-                            control={control}
-                            name="username"
-                            render={({ field: { onChange } }) =>
-                                <TextField
-                                    width={300}
-                                    label={brugernavn}
-                                    onChange={onChange}
-                                    type="text"
-                                    errors={errors.username}
-                                />
-                            }
-                            rules={{ required: true }}
-                            type="text"
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
+        <Box
+            sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                px: 2
+            }}
+        >
+            <form onSubmit={handleSubmit(onSubmit)} style={{ width: "100%" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: 400,
+                        mx: "auto",
+                        p: 4,
+                        borderRadius: 3,
+                        boxShadow: 3,
+                        backgroundColor: "background.paper",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2
+                    }}
+                >
+                    {/* Titel */}
+                    <Box sx={{ fontSize: 24, fontWeight: "bold", textAlign: "center" }}>
+                        Login
                     </Box>
-                    {errors && errors.username?.message}
-                    <Box sx={centrer}>
-                        <Controller
-                            id='password'
-                            control={control}
-                            name="password"
-                            render={({ field: { onChange } }) =>
-                                <TextField
-                                    width={300}
-                                    label='Password'
-                                    onChange={onChange}
-                                    type="password"
-                                    errors={errors?.password}
-                                />
-                            }
-                            rules={{
-                                required: true,
-                            }}
-                            InputLabelProps={{
-                                shrink: true,
-                            }}
-                        />
-                    </Box>
-                    {errors && errors.password?.message}
-                    <div>
-                        <Button type="submit" disabled={isLoading}>{knap}</Button>
-                    </div>
-                    <Box sx={{ color: 'red' }}>{status}</Box>
+
+                    {/* Username */}
+                    <Controller
+                        control={control}
+                        name="username"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                autoFocus
+                                fullWidth
+                                label={username}
+                                error={!!errors.username}
+                                helperText={<ErrorMessage errors={errors} name="username" />}
+                            />
+                        )}
+                    />
+
+                    {/* Password */}
+                    <Controller
+                        control={control}
+                        name="password"
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                error={!!errors.password}
+                                helperText={<ErrorMessage errors={errors} name="password" />}
+                            />
+                        )}
+                    />
+
+                    {/* Knapper */}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        size="large"
+                        fullWidth
+                        disabled={isLoading}
+                    >
+                        {knap}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        fullWidth
+                        onClick={() => router.push('/register')}
+                    >
+                        {register}
+                    </Button>
+
+                    {/* Fejl */}
+                    {status && (
+                        <Box sx={{ color: "error.main", textAlign: "center" }}>
+                            {status}
+                        </Box>
+                    )}
                 </Box>
             </form>
         </Box>

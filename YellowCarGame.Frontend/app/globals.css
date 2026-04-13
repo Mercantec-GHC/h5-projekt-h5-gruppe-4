@@ -22,8 +22,57 @@ body {
   padding: 0;
   margin: 0;
 }
-
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50%;
+}
 a {
   color: inherit;
   text-decoration: none;
+}
+.avatar-edit {
+  cursor: pointer;
+}
+
+.avatar-edit:hover>.avatar-img {
+  /*box-shadow: 0 0 0 .125rem var(--bs-black);*/
+  box-shadow: 0 0 0 .125rem var(--bs-emphasis-color);
+}
+
+/*[data-bs-theme=dark]
+.avatar-edit:hover > .avatar-img {
+    box-shadow: 0 0 0 .125rem var(--bs-white);
+}*/
+
+.avatar-edit:hover:before {
+  content: url("/images/edit.png");
+  transform: scale(.1);
+  -webkit-filter: drop-shadow(0 0 50px #000);
+  filter: drop-shadow(0 0 50px #000);
+  position: absolute;
+  margin-top: -110px;
+  margin-left: -110px;
+  z-index: 15;
+}
+
+.img-container {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+}
+
+.cropper-view-box {
+  border-radius: 50% !important;
+}
+
+.img-container img:not([src]),
+.img-container img[src=""] {
+  display: none;
 }
