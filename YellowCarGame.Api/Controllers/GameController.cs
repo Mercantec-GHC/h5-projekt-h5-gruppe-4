@@ -35,7 +35,7 @@ namespace YellowCarGame.Api.Controllers
         }
 
         // GET: api/game
-        [HttpGet, Authorize]
+        [HttpGet, Authorize] // Skal være admin for at se alle spil.
         public IActionResult ListGames()
         {
             var games = _manager.Games.Values.Select(g => new {
@@ -57,7 +57,7 @@ namespace YellowCarGame.Api.Controllers
         }
 
         // GET: api/game/join/{code}
-        [HttpGet("join/{code}"), Authorize(Roles = "Admin")]
+        [HttpGet("join/{code}"), Authorize(Roles = "Admin")] // skal ikke være admin
         public async Task<ActionResult> JoinByCode(string code)
         {
             var user = await userContext.GetCurrentUserAsync();
